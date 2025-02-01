@@ -42,7 +42,7 @@ STATIC_LINKING=$1
 shift
 LITE=$1
 shift
-no_deps=$@
+no_deps_comps=$@
 
 cd "${SCUMMVM_PATH}"
 
@@ -53,6 +53,18 @@ mv configure.bak configure > /dev/null 2>&1
 
 _parent_engines_list=""
 tot_deps=""
+
+# Separate unavailable dependencies from components
+for item in $no_deps_comps ; do
+	case $item in
+		component_*)
+			append_var no_comps "${item#component_}"
+			;;
+		*)
+			append_var no_deps "${item}"
+			;;
+	esac
+done
 
 # Test NO_WIP
 [ $NO_WIP -ne 1 ] && engine_enable_all
@@ -76,14 +88,32 @@ for a in $_engines ; do
 		done
 		[ $found -eq 0 ] && append_var tot_deps "$dep"
 	done
+
+	# Check if the engine requires unavailable component and disable it in case
+#	found=0
+#	for comp in $(get_var _engine_${a}_deps) ; do #$(get_var _engine_${a}_components) #Some components are indicated mistakenly as deps in some config.engine (e.g. cryomni3d)
+#		for no_comp in $no_comps ; do
+#			[ $comp = $no_comp ] && found=1
+#		done
+#	done
+#	[ $found -eq 1 ] && engine_disable ${a}
 done
 
+# Set all deps to yes then set no for the one in no_deps list. Engines will be disabled in engines.awk if needed
 for dep in $tot_deps ; do
-	eval _$dep=yes
+	set_var _$dep yes
 done
-
 for dep in $no_deps ; do
-	eval _$dep=no
+	set_var _$dep no
+done
+# Disable unavailable components
+for comp in $(get_var _components); do
+	for dep in $no_comps ; do
+		if [ $comp = $dep ] ; then
+			set_var _feature_${comp}_settings no
+			break
+		fi
+	done
 done
 
 # Create needed engines build files
