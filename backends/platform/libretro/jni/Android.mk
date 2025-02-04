@@ -35,9 +35,9 @@ LOCAL_MODULE          := retro
 LOCAL_MODULE_FILENAME := libretro
 LOCAL_SRC_FILES       := $(DETECT_OBJS:%.o=$(SCUMMVM_PATH)/%.cpp)  $(OBJS_DEPS:%.o=%.c) $(OBJS_MODULES:%.o=%.cpp) $(OBJS:%.o=%.cpp)
 LOCAL_C_INCLUDES      := $(subst -I,,$(INCLUDES))
-LOCAL_CPPFLAGS        := $(COREFLAGS) -std=c++11
+LOCAL_CPPFLAGS        := $(COREFLAGS) -std=c++11 -Wa --noexecstack -fpic
 LOCAL_CFLAGS          := $(COREFLAGS)
-LOCAL_LDFLAGS         := -Wl,-version-script=$(ROOT_PATH)/link.T
+LOCAL_LDFLAGS         := -Wl,-version-script=$(ROOT_PATH)/link.T -shared -Bsymbolic --no-undefined -static-libstdc++ -z noexecstack
 LOCAL_LDLIBS          := -lz -llog
 LOCAL_CPP_FEATURES    := rtti
 LOCAL_ARM_MODE        := arm
