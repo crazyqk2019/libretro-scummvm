@@ -289,14 +289,19 @@ void Animations::processAnimActions(int32 actorIdx) { // GereAnimAction
 		switch (action.type) {
 		case ActionType::ACTION_HITTING:
 			if (action.animFrame - 1 == actor->_frame) {
-				actor->_strengthOfHit = action.strength;
+				actor->_hitForce = action.strength;
 				actor->_workFlags.bIsHitting = 1;
 			}
 			break;
 		case ActionType::ACTION_SAMPLE:
+			if (action.animFrame == actor->_frame) {
+				_engine->_sound->mixSample3D(action.sampleIndex, 0x1000, 1, actor->posObj(), actorIdx);
+			}
+			break;
 		case ActionType::ACTION_SAMPLE_FREQ:
 			if (action.animFrame == actor->_frame) {
-				_engine->_sound->playSample(action.sampleIndex, 1, actor->posObj(), actorIdx);
+				const uint16 pitchBend = 0x1000 + _engine->getRandomNumber(action.frequency) - (action.frequency / 2);
+				_engine->_sound->mixSample3D(action.sampleIndex, pitchBend, 1, actor->posObj(), actorIdx);
 			}
 			break;
 		case ActionType::ACTION_THROW_EXTRA_BONUS:
@@ -311,7 +316,7 @@ void Animations::processAnimActions(int32 actorIdx) { // GereAnimAction
 			break;
 		case ActionType::ACTION_SAMPLE_REPEAT:
 			if (action.animFrame == actor->_frame) {
-				_engine->_sound->playSample(action.sampleIndex, action.repeat, actor->posObj(), actorIdx);
+				_engine->_sound->mixSample3D(action.sampleIndex, 0x1000, action.repeat, actor->posObj(), actorIdx);
 			}
 			break;
 		case ActionType::ACTION_THROW_SEARCH:
@@ -332,18 +337,20 @@ void Animations::processAnimActions(int32 actorIdx) { // GereAnimAction
 		case ActionType::ACTION_LEFT_STEP:
 			if (action.animFrame == actor->_frame && (actor->_brickSound & 0xF0U) != 0xF0U) {
 				const int16 sampleIdx = (actor->_brickSound & 0x0FU) + Samples::WalkFloorBegin;
-				_engine->_sound->playSample(sampleIdx, 1, actor->posObj(), actorIdx);
+				const uint16 pitchBend = 0x1000 + _engine->getRandomNumber(1000) - 500;
+				_engine->_sound->mixSample3D(sampleIdx, pitchBend, 1, actor->posObj(), actorIdx);
 			}
 			break;
 		case ActionType::ACTION_RIGHT_STEP:
 			if (action.animFrame == actor->_frame && (actor->_brickSound & 0xF0U) != 0xF0U) {
 				const int16 sampleIdx = (actor->_brickSound & 0x0FU) + Samples::WalkFloorRightBegin;
-				_engine->_sound->playSample(sampleIdx, 1, actor->posObj(), actorIdx);
+				const uint16 pitchBend = 0x1000 + _engine->getRandomNumber(1000) - 500;
+				_engine->_sound->mixSample3D(sampleIdx, pitchBend, 1, actor->posObj(), actorIdx);
 			}
 			break;
 		case ActionType::ACTION_HERO_HITTING:
 			if (action.animFrame - 1 == actor->_frame) {
-				actor->_strengthOfHit = magicLevelStrengthOfHit[_engine->_gameState->_magicLevelIdx];
+				actor->_hitForce = magicLevelStrengthOfHit[_engine->_gameState->_magicLevelIdx];
 				actor->_workFlags.bIsHitting = 1;
 			}
 			break;
@@ -400,7 +407,7 @@ void Animations::processAnimActions(int32 actorIdx) { // GereAnimAction
 	}
 }
 
-bool Animations::initAnim(AnimationTypes newAnim, AnimType flag, AnimationTypes genNextAnim, int32 actorIdx) {
+bool Animations::initAnim(AnimationTypes genNewAnim, AnimType flag, AnimationTypes genNextAnim, int32 actorIdx) {
 	ActorStruct *actor = _engine->_scene->getActor(actorIdx);
 	if (actor->_body == -1) {
 		return false;
@@ -410,15 +417,15 @@ bool Animations::initAnim(AnimationTypes newAnim, AnimType flag, AnimationTypes 
 		return false;
 	}
 
-	if (newAnim == actor->_genAnim && actor->_anim != -1) {
+	if (genNewAnim == actor->_genAnim && actor->_anim != -1) {
 		return true;
 	}
 
-	if (genNextAnim == AnimationTypes::kAnimInvalid && actor->_flagAnim != AnimType::kAnimationAllThen) {
+	if (genNextAnim == AnimationTypes::kNoAnim && actor->_flagAnim != AnimType::kAnimationAllThen) {
 		genNextAnim = actor->_genAnim;
 	}
 
-	int32 newanim = searchAnim(newAnim, actorIdx);
+	int32 newanim = searchAnim(genNewAnim, actorIdx);
 
 	if (newanim == -1) {
 		newanim = searchAnim(AnimationTypes::kStanding, actorIdx);
@@ -428,7 +435,7 @@ bool Animations::initAnim(AnimationTypes newAnim, AnimType flag, AnimationTypes 
 	}
 
 	if (flag != AnimType::kAnimationSet && actor->_flagAnim == AnimType::kAnimationAllThen) {
-		actor->_nextGenAnim = newAnim;
+		actor->_nextGenAnim = genNewAnim;
 		return false;
 	}
 
@@ -446,16 +453,17 @@ bool Animations::initAnim(AnimationTypes newAnim, AnimType flag, AnimationTypes 
 		flag = AnimType::kAnimationAllThen;
 	}
 
+	BodyData &bodyData = actor->_entityDataPtr->getBody(actor->_body);
 	if (actor->_anim == -1) {
 		// if no previous animation
-		setAnimObjet(0, _engine->_resources->_animData[newanim], actor->_entityDataPtr->getBody(actor->_body), &actor->_animTimerData);
+		setAnimObjet(0, _engine->_resources->_animData[newanim], bodyData, &bodyData._animTimerData);
 	} else {
 		// interpolation between animations
-		stockInterAnim(actor->_entityDataPtr->getBody(actor->_body), &actor->_animTimerData);
+		stockInterAnim(bodyData, &bodyData._animTimerData);
 	}
 
 	actor->_anim = newanim;
-	actor->_genAnim = newAnim;
+	actor->_genAnim = genNewAnim;
 	actor->_nextGenAnim = genNextAnim;
 	actor->_ptrAnimAction = _currentActorAnimExtraPtr;
 
@@ -487,7 +495,7 @@ void Animations::doAnim(int32 actorIdx) {
 
 	IVec3 &processActor = actor->_processActor;
 	if (actor->_flags.bSprite3D) {
-		if (actor->_strengthOfHit) {
+		if (actor->_hitForce) {
 			actor->_workFlags.bIsHitting = 1;
 		}
 
@@ -578,8 +586,9 @@ void Animations::doAnim(int32 actorIdx) {
 			const AnimData &animData = _engine->_resources->_animData[actor->_anim];
 
 			bool keyFramePassed = false;
-			if (actor->_entityDataPtr->getBody(actor->_body).isAnimated()) {
-				keyFramePassed = setInterDepObjet(actor->_frame, animData, &actor->_animTimerData);
+			BodyData &bodyData = actor->_entityDataPtr->getBody(actor->_body);
+			if (bodyData.isAnimated()) {
+				keyFramePassed = setInterDepObjet(actor->_frame, animData, &bodyData._animTimerData);
 			}
 
 			if (_animMasterRot) {
@@ -629,7 +638,7 @@ void Animations::doAnim(int32 actorIdx) {
 
 						actor->_flagAnim = AnimType::kAnimationTypeRepeat;
 						actor->_frame = 0;
-						actor->_strengthOfHit = 0;
+						actor->_hitForce = 0;
 					}
 
 					processAnimActions(actorIdx);
@@ -788,10 +797,10 @@ void Animations::doAnim(int32 actorIdx) {
 							if (fallHeight <= (2 * SIZE_BRICK_Y) && actor->_genAnim == AnimationTypes::kForward) {
 								actor->_workFlags.bWasWalkingBeforeFalling = 1;
 							} else {
-								initAnim(AnimationTypes::kFall, AnimType::kAnimationTypeRepeat, AnimationTypes::kAnimInvalid, actorIdx);
+								initAnim(AnimationTypes::kFall, AnimType::kAnimationTypeRepeat, AnimationTypes::kNoAnim, actorIdx);
 							}
 						} else {
-							initAnim(AnimationTypes::kFall, AnimType::kAnimationTypeRepeat, AnimationTypes::kAnimInvalid, actorIdx);
+							initAnim(AnimationTypes::kFall, AnimType::kAnimationTypeRepeat, AnimationTypes::kNoAnim, actorIdx);
 						}
 					}
 				}

@@ -19,15 +19,31 @@
  *
  */
 
-#ifndef COMMON_TYPE_TRAITS_H
-#define COMMON_TYPE_TRAITS_H
+#ifndef M4_RIDDLE_ROOMS_SECTION8_ROOM852_H
+#define M4_RIDDLE_ROOMS_SECTION8_ROOM852_H
 
-namespace Common {
-	template <bool b, class T, class U> struct Conditional { typedef T type; };
-	template <class T, class U> struct Conditional<false, T, U> { typedef U type; };
-	template <typename T> struct RemoveConst { typedef T type; };
-	template <typename T> struct RemoveConst<const T> { typedef T type; };
-	template <typename T> struct AddConst { typedef const T type; };
-} // End of namespace Common
+#include "m4/riddle/rooms/room.h"
+
+namespace M4 {
+namespace Riddle {
+namespace Rooms {
+
+class Room852 : public Room {
+private:
+	machine *_all = nullptr;
+
+public:
+	Room852() : Room() {}
+	~Room852() override {}
+
+	void preload() override;
+	void init() override;
+	void daemon() override;
+	void shutdown() override;
+};
+
+} // namespace Rooms
+} // namespace Riddle
+} // namespace M4
 
 #endif

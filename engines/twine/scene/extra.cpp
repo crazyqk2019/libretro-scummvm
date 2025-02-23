@@ -384,6 +384,7 @@ void Extra::addExtraThrowMagicball(int32 x, int32 y, int32 z, int32 xAngle, int3
 		_engine->_gameState->_magicBall = throwExtra(OWN_ACTOR_SCENE_INDEX, x, y, z, ballSprite, xAngle, yAngle, xRotPoint, extraAngle, ballStrength);
 		break;
 	case 5:
+		assert(extraIdx != -1);
 		_engine->_gameState->_magicBall = extraSearchKey(OWN_ACTOR_SCENE_INDEX, x, y, z, ballSprite, extraIdx);
 		break;
 	}
@@ -610,7 +611,7 @@ void Extra::gereExtras() {
 			const int32 angle = ClampAngle(tmpAngle - extra->angle);
 
 			if (angle > LBAAngles::ANGLE_140 && angle < LBAAngles::ANGLE_210) {
-				_engine->_sound->playSample(Samples::ItemFound, 1, _engine->_scene->_sceneHero->posObj(), OWN_ACTOR_SCENE_INDEX);
+				_engine->_sound->mixSample3D(Samples::ItemFound, 0x1000, 1, _engine->_scene->_sceneHero->posObj(), OWN_ACTOR_SCENE_INDEX);
 
 				if (extraKey->info1 > 1) {
 					const IVec3 &projPos = _engine->_renderer->projectPoint(extraKey->pos - _engine->_grid->_worldCube);
@@ -643,7 +644,7 @@ void Extra::gereExtras() {
 			_engine->_movements->initRealValue(LBAAngles::ANGLE_0, extra->destPos.z, LBAAngles::ANGLE_17, &extra->trackActorMove);
 
 			if (extraIdx == _engine->_collision->extraCheckExtraCol(extra, _engine->_gameState->_magicBall)) {
-				_engine->_sound->playSample(Samples::ItemFound, 1, _engine->_scene->_sceneHero->posObj(), OWN_ACTOR_SCENE_INDEX);
+				_engine->_sound->mixSample3D(Samples::ItemFound, 0x1000, 1, _engine->_scene->_sceneHero->posObj(), OWN_ACTOR_SCENE_INDEX);
 
 				if (extraKey->info1 > 1) {
 					const IVec3 &projPos = _engine->_renderer->projectPoint(extraKey->pos - _engine->_grid->_worldCube);
@@ -720,7 +721,8 @@ void Extra::gereExtras() {
 				}
 				// if extra is magic ball
 				if (i == _engine->_gameState->_magicBall) {
-					_engine->_sound->playSample(Samples::Hit, 1, extra->pos);
+					const uint16 pitchBend = 0x1000 + _engine->getRandomNumber(300) - 150;
+					_engine->_sound->mixSample3D(Samples::Hit, pitchBend, 1, extra->pos, -1);
 
 					// can't bounce with not magic points
 					if (_engine->_gameState->_magicBallType <= 0) {
@@ -791,7 +793,7 @@ void Extra::gereExtras() {
 		if ((extra->type & ExtraType::TAKABLE) && !(extra->type & ExtraType::FLY)) {
 			// if hero touch extra
 			if (_engine->_collision->extraCheckObjCol(extra, -1) == 0) {
-				_engine->_sound->playSample(Samples::ItemFound, 1, extra->pos);
+				_engine->_sound->mixSample3D(Samples::ItemFound, 0x1000, 1, extra->pos, -1);
 
 				if (extra->info1 > 1) {
 					const IVec3 &projPos = _engine->_renderer->projectPoint(extra->pos - _engine->_grid->_worldCube);

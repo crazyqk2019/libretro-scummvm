@@ -344,6 +344,9 @@ Object *FreescapeEngine::load8bitObject(Common::SeekableReadStream *file) {
 		readArray(file, byteSizeOfObject - 9);
 		return nullptr;
 	}
+	if (isC64() && isDark())
+		objectType = (ObjectType)(objectType % ObjectType::kGroupType);
+
 	assert(objectType <= ObjectType::kGroupType);
 	assert(byteSizeOfObject >= 9);
 	byteSizeOfObject = byteSizeOfObject - 9;
@@ -844,6 +847,8 @@ void FreescapeEngine::load8bitBinary(Common::SeekableReadStream *file, int offse
 		file->seek(offset + 0x6);
 	else if (isAmiga() || isAtariST())
 		file->seek(offset + 0x14);
+	else if (isDriller() && isC64())
+		file->seek(offset + 0x2a);
 	else
 		file->seek(offset + 0xa);
 

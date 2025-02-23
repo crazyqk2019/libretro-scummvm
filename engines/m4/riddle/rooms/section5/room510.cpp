@@ -135,7 +135,7 @@ void Room510::init() {
 		player_set_commands_allowed(false);
 		_stepsSeries = series_load("510 UP STEPS");
 		_steps = series_play("510 UP STEPS", 0xf00, 0, 110, 5);
-		ws_demand_location(409, 86, 11);
+		ws_demand_location(_G(my_walker), 409, 86, 11);
 		ws_hide_walker();
 	}
 
@@ -148,7 +148,7 @@ void Room510::daemon() {
 		terminateMachineAndNull(_steps);
 		ws_unhide_walker();
 		series_unload(_stepsSeries);
-		ws_walk(407, 97, nullptr, 999, 8);
+		ws_walk(_G(my_walker), 407, 97, nullptr, 999, 8);
 		break;
 
 	case 999:
@@ -358,12 +358,13 @@ void Room510::parser() {
 			}
 
 			ws_unhide_walker();
-			ws_demand_location(425, 128, 11);
+			ws_demand_location(_G(my_walker), 425, 128, 11);
 			kernel_timing_trigger(1, 6);
 			break;
 		case 6:
 			_G(flags)[V292] = 1;
 			series_unload(_ripStartsDownWall);
+			player_set_commands_allowed(true);
 			break;
 		case 7:
 			terminateMachineAndNull(_pu03);
@@ -381,7 +382,7 @@ void Room510::parser() {
 		switch (_G(kernel).trigger) {
 		case -1:
 			if (inv_object_is_here("WOODEN LADDER") && !_G(flags)[V169]) {
-				ws_walk(395, 121, nullptr, 1, 5);
+				ws_walk(_G(my_walker), 395, 121, nullptr, 1, 5);
 			}
 			break;
 		case 1:
@@ -515,7 +516,7 @@ void Room510::parser() {
 
 		switch (_G(kernel).trigger) {
 		case -1:
-			ws_walk(395, 121, nullptr, 1, 7);
+			ws_walk(_G(my_walker), 395, 121, nullptr, 1, 7);
 			break;
 		case 1:
 			player_set_commands_allowed(false);
@@ -589,7 +590,7 @@ void Room510::parser() {
 				}
 
 				ws_unhide_walker();
-				ws_demand_location(425, 128, 11);
+				ws_demand_location(_G(my_walker), 425, 128, 11);
 				_G(flags)[V170] = 0;
 				player_set_commands_allowed(true);
 				break;
@@ -602,7 +603,7 @@ void Room510::parser() {
 		} else {
 			switch (_G(kernel).trigger) {
 			case -1:
-				ws_walk(425, 128, nullptr, 1, 11);
+				ws_walk(_G(my_walker), 425, 128, nullptr, 1, 11);
 				break;
 			case 1:
 				player_set_commands_allowed(false);
@@ -765,7 +766,7 @@ void Room510::parser() {
 		} else {
 			switch (_G(kernel).trigger) {
 			case -1:
-				ws_walk(407, 97, nullptr, 1, 10);
+				ws_walk(_G(my_walker), 407, 97, nullptr, 1, 10);
 				break;
 			case 1:
 				player_set_commands_allowed(false);
@@ -823,20 +824,20 @@ void Room510::parser() {
 bool Room510::useAltarPost() {
 	switch (_G(kernel.trigger)) {
 	case -1:
-		ws_walk(382, 111, nullptr, 666, 11);
+		ws_walk(_G(my_walker), 382, 111, nullptr, 666, 11);
 		break;
 
 	case 1:
 		ws_unhide_walker();
 		terminateMachineAndNull(_statue);
 
-		if (_G(flags[V169]) <= 0) {
+		if (_G(flags)[V169] <= 0) {
 			_statue = series_play(" 510 STATUE LAYED DOWN", 0xa00, 16, -1, 5, 0, 100, 0, 0, 0, -1);
 			kernel_timing_trigger(1, 2, nullptr);
 			hotspot_set_active("ALTAR POST", false);
 			hotspot_set_active("ALTAR POST ", true);
 			kernel_load_variant("510lock1");
-		} else if (_G(flags[V169]) <= 2) {
+		} else if (_G(flags)[V169] <= 2) {
 			_statue = series_play(" 510 STATUE", 0xa00, 16, -1, 5, 0, 100, 0, 0, 0, -1);
 			kernel_timing_trigger(1, 2);
 			hotspot_set_active("ALTAR POST", true);
@@ -846,9 +847,9 @@ bool Room510::useAltarPost() {
 		break;
 
 	case 2:
-		switch (_G(flags[V169])) {
+		switch (_G(flags)[V169]) {
 		case 0:
-			_G(flags[V169]) = 1;
+			_G(flags)[V169] = 1;
 			player_set_commands_allowed(true);
 			break;
 
@@ -870,13 +871,13 @@ bool Room510::useAltarPost() {
 		break;
 
 	case 4:
-		switch (_G(flags[V169])) {
+		switch (_G(flags)[V169]) {
 		case 0:
 			player_set_commands_allowed(true);
 			break;
 
 		case 1:
-			_G(flags[V169]) = 0;
+			_G(flags)[V169] = 0;
 			player_set_commands_allowed(true);
 
 			break;
@@ -943,7 +944,7 @@ bool Room510::useAltarPost() {
 
 	case 11:
 		series_unload(_ripLowReach4);
-		_G(flags[V169]) = 0;
+		_G(flags)[V169] = 0;
 		player_set_commands_allowed(true);
 		break;
 
@@ -966,10 +967,10 @@ bool Room510::useAltarPost() {
 		kernel_timing_trigger(130, 3);
 		ws_hide_walker();
 
-		if (_G(flags[V169]) <= 0) {
+		if (_G(flags)[V169] <= 0) {
 			terminateMachineAndNull(_statue);
 			_statue = series_play("510 RIP LOWERS STATUE", 0xa00, 16, 1, 5);
-		} else if (_G(flags[V169]) == 1) {
+		} else if (_G(flags)[V169] == 1) {
 			terminateMachineAndNull(_statue);
 			_statue = series_play("510 RIP LOWERS STATUE", 0xa00, 18, 1, 5);
 		}
@@ -992,7 +993,7 @@ bool Room510::takeVinesRope() {
 				return true;
 		}
 
-		ws_walk(395, 121, nullptr, 1, 5);
+		ws_walk(_G(my_walker), 395, 121, nullptr, 1, 5);
 		break;
 
 	case 1:
@@ -1076,7 +1077,7 @@ void Room510::useVines() {
 	switch (_G(kernel).trigger) {
 	case -1:
 		other_save_game_for_resurrection();
-		ws_walk(425, 128, nullptr, 1, 11);
+		ws_walk(_G(my_walker), 425, 128, nullptr, 1, 11);
 		break;
 
 	case 1:
@@ -1201,7 +1202,7 @@ void Room510::woodenLadder() {
 void Room510::altar() {
 	switch (_G(kernel).trigger) {
 	case -1:
-		ws_walk(395, 121, nullptr, 1, 7);
+		ws_walk(_G(my_walker), 395, 121, nullptr, 1, 7);
 		break;
 
 	case 1:

@@ -94,7 +94,7 @@ void GameState::initHeroVars() {
 	_nbLittleKeys = 0;
 	_magicPoint = 0;
 
-	_usingSabre = false;
+	_weapon = false;
 
 	_engine->_scene->_sceneHero->_genBody = BodyType::btNormal;
 	_engine->_scene->_sceneHero->setLife(_engine->getMaxLife());
@@ -131,7 +131,7 @@ void GameState::initEngineVars() {
 	_engine->_actor->_cropBottomScreen = 0;
 
 	_magicLevelIdx = 0;
-	_usingSabre = false;
+	_weapon = false;
 
 	setChapter(0);
 
@@ -218,7 +218,7 @@ bool GameState::loadGame(Common::SeekableReadStream *file) {
 	file->read(_inventoryFlags, NUM_INVENTORY_ITEMS);
 
 	setLeafs(file->readByte());
-	_usingSabre = file->readByte();
+	_weapon = file->readByte();
 
 	if (saveFileVersion == 4) {
 		// the time the game was played
@@ -283,7 +283,7 @@ bool GameState::saveGame(Common::WriteStream *file) {
 	file->write(_inventoryFlags, NUM_INVENTORY_ITEMS);
 
 	file->writeByte(_inventoryNumLeafs);
-	file->writeByte(_usingSabre ? 1 : 0);
+	file->writeByte(_weapon ? 1 : 0);
 	file->writeByte(0);
 
 	return true;
@@ -366,7 +366,7 @@ void GameState::doFoundObj(InventoryItems item) {
 	const int32 boxBottomRightX = projPos.x + (SIZE_FOUND_OBJ / 2);
 	const int32 boxBottomRightY = projPos.y + (SIZE_FOUND_OBJ / 2);
 	const Common::Rect boxRect(boxTopLeftX, boxTopLeftY, boxBottomRightX, boxBottomRightY);
-	_engine->_sound->playSample(Samples::BigItemFound);
+	_engine->_sound->mixSample(Samples::BigItemFound, 0x1000, 1, 128, 128);
 
 	// process vox play
 	_engine->_music->stopMusic();
@@ -383,7 +383,7 @@ void GameState::doFoundObj(InventoryItems item) {
 	const int32 bodyAnimIdx = _engine->_animations->searchAnim(AnimationTypes::kFoundItem, OWN_ACTOR_SCENE_INDEX);
 	const AnimData &ptranim = _engine->_resources->_animData[bodyAnimIdx];
 
-	_engine->_animations->stockInterAnim(bodyData, &_engine->_scene->_sceneHero->_animTimerData);
+	_engine->_animations->stockInterAnim(bodyData, &bodyData._animTimerData);
 
 	uint frameanim = 0;
 
@@ -543,7 +543,8 @@ void GameState::processGameoverAnimation() {
 		debugC(3, kDebugLevels::kDebugTimers, "GameOver time: %i", _engine->timerRef);
 	}
 
-	_engine->_sound->playSample(Samples::Explode);
+	const uint16 pitchBend = 0x1000 + _engine->getRandomNumber(2000) - (2000 / 2);
+	_engine->_sound->mixSample(Samples::Explode, pitchBend, 1, 128, 128);
 	_engine->blitWorkToFront(rect);
 	_engine->_renderer->setFollowCamera(0, 0, 0, 0, 0, 0, zoom);
 	_engine->_renderer->affObjetIso(0, 0, 0, LBAAngles::ANGLE_0, LBAAngles::ANGLE_0, LBAAngles::ANGLE_0, gameOverPtr, dummy);

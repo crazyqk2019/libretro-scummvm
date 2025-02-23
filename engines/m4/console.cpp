@@ -26,7 +26,7 @@
 
 namespace M4 {
 
-Console::Console() : GUI::Debugger() {
+Console::Console() : ::GUI::Debugger() {
 	registerCmd("teleport",  WRAP_METHOD(Console, cmdTeleport));
 	registerCmd("item",      WRAP_METHOD(Console, cmdItem));
 	registerCmd("hyperwalk", WRAP_METHOD(Console, cmdHyperwalk));
@@ -35,6 +35,8 @@ Console::Console() : GUI::Debugger() {
 	registerCmd("cels",      WRAP_METHOD(Console, cmdCels));
 	registerCmd("cel",       WRAP_METHOD(Console, cmdCel));
 	registerCmd("interface", WRAP_METHOD(Console, cmdInterface));
+	registerCmd("music",     WRAP_METHOD(Console, cmdMusic));
+	registerCmd("hotspots",  WRAP_METHOD(Console, cmdHotspots));
 }
 
 bool Console::cmdTeleport(int argc, const char **argv) {
@@ -144,6 +146,31 @@ bool Console::cmdInterface(int argc, const char **argv) {
 
 		return false;
 	}
+}
+
+bool Console::cmdMusic(int argc, const char **argv) {
+	if (argc != 2) {
+		debugPrintf("music <name>\n");
+		midi_play("ripthem1", 255, 0, -1, 999);
+		return true;
+	} else {
+		midi_play(argv[1], 255, 0, -1, 999);
+		return false;
+	}
+}
+
+bool Console::cmdHotspots(int argc, const char **argv) {
+	for (HotSpotRec *hs = _G(currentSceneDef).hotspots;
+			hs; hs = hs->next) {
+		debugPrintf("vocab=%s, verb=%s, prep=%s, pos=(%d,%d,%d,%d), feet=(%d,%d)\n",
+			hs->vocab ? hs->vocab : "",
+			hs->verb ? hs->verb : "",
+			hs->prep ? hs->prep : "",
+			hs->ul_x, hs->ul_y, hs->lr_x, hs->lr_y,
+			hs->feet_x, hs->feet_y);
+	}
+
+	return true;
 }
 
 } // End of namespace M4

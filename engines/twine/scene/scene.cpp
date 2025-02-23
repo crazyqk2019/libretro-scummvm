@@ -23,7 +23,9 @@
 #include "common/config-manager.h"
 #include "common/file.h"
 #include "common/memstream.h"
+#include "common/textconsole.h"
 #include "common/util.h"
+#include "engines/enhancements.h"
 #include "twine/audio/music.h"
 #include "twine/audio/sound.h"
 #include "twine/debugger/debug_state.h"
@@ -247,7 +249,7 @@ bool Scene::loadSceneLBA2() {
 		act->_posObj.y = (int16)stream.readUint16LE();
 		act->_posObj.z = (int16)stream.readUint16LE();
 		act->_oldPos = act->posObj();
-		act->_strengthOfHit = stream.readByte();
+		act->_hitForce = stream.readByte();
 		setBonusParameterFlags(act, stream.readUint16LE());
 		act->_beta = (int16)stream.readUint16LE();
 		act->_srot = (int16)stream.readUint16LE();
@@ -381,7 +383,7 @@ bool Scene::loadSceneLBA1() {
 		act->_posObj.y = (int16)stream.readUint16LE();
 		act->_posObj.z = (int16)stream.readUint16LE();
 		act->_oldPos = act->posObj();
-		act->_strengthOfHit = stream.readByte();
+		act->_hitForce = stream.readByte();
 		setBonusParameterFlags(act, stream.readUint16LE());
 		act->_bonusParameter.givenNothing = 0;
 		act->_beta = (int16)stream.readUint16LE();
@@ -440,44 +442,29 @@ bool Scene::loadSceneLBA1() {
 		point->z = stream.readSint16LE();
 	}
 
-	if (_enableEnhancements) {
-		switch (_numCube) {
-		case LBA1SceneId::Hamalayi_Mountains_landing_place:
-			// move the mine a little bit, as it's too close to the change cube zone
-			_sceneActors[21]._posObj.x = _sceneActors[21]._oldPos.x = 6656 + 256;
-			_sceneActors[21]._posObj.z = _sceneActors[21]._oldPos.z = 768;
-			break;
-		case LBA1SceneId::Principal_Island_outside_the_fortress:
-			// https://bugs.scummvm.org/ticket/13818
-			_sceneActors[29]._posObj.z = _sceneActors[29]._oldPos.z = 1795;
-
+	if (_engine->isLBA1()) {
+		if (_engine->enhancementEnabled(kEnhMinorBugFixes)) {
+			if (_numCube == LBA1SceneId::Hamalayi_Mountains_landing_place) {
+				// move the mine a little bit, as it's too close to the change cube zone
+				_sceneActors[21]._posObj.x = _sceneActors[21]._oldPos.x = 6656 + 256;
+				_sceneActors[21]._posObj.z = _sceneActors[21]._oldPos.z = 768;
+			}
 #if 0
-			// increase the zones for opening the doors
-			// red card door
-			_sceneZones[15].mins.x = 1104;
-			_sceneZones[15].mins.z = 8448;
-			_sceneZones[15].maxs.x = 4336;
-			_sceneZones[15].maxs.z = 11488;
-
-			// red card door
-			_sceneZones[16].mins.x = 21104;
-			_sceneZones[16].mins.z = 4608;
-			_sceneZones[16].maxs.x = 23824;
-			_sceneZones[16].maxs.z = 8080;
-
-			// blue card door
-			_sceneZones[22].mins.x = 6144;
-			_sceneZones[22].mins.z = 6144;
-			_sceneZones[22].maxs.x = 8865;
-			_sceneZones[22].maxs.z = 6881;
+			else if (_numCube == LBA1SceneId::Tippet_Island_Secret_passage_scene_1) {
+				_sceneZones[6].maxs.z = 3616;
+			}
 #endif
-			break;
-		case LBA1SceneId::Tippet_Island_Secret_passage_scene_1:
-			_sceneZones[6].maxs.z = 3616;
-			break;
-		case LBA1SceneId::Principal_Island_inside_the_fortress:
-			_sceneZones[11].type = (ZoneType)50;
-			break;
+		}
+		if (_engine->enhancementEnabled(kEnhGameBreakingBugFixes)) {
+			if (_numCube == LBA1SceneId::Principal_Island_outside_the_fortress) {
+				// https://bugs.scummvm.org/ticket/13818
+				_sceneActors[29]._posObj.z = _sceneActors[29]._oldPos.z = 1795;
+			} else if (_numCube == LBA1SceneId::Principal_Island_inside_the_fortress) {
+				// https://bugs.scummvm.org/ticket/13819
+				// Set this zone to something invalid to fix a getting-stuck-bug
+				// the original value was ZoneType::kGrid (3)
+				_sceneZones[11].type = ZoneType::kFunFrockFix;
+			}
 		}
 	}
 
@@ -544,7 +531,7 @@ void Scene::dumpSceneScripts() const {
 
 void Scene::changeCube() {
 	if (_engine->isLBA1()) {
-		if (_enableEnhancements) {
+		if (_engine->enhancementEnabled(kEnhMinorBugFixes)) {
 			if (_numCube == LBA1SceneId::Citadel_Island_Harbor && _newCube == LBA1SceneId::Principal_Island_Harbor) {
 				if (_sceneNumZones >= 15 && _sceneNumTracks >= 8) {
 					const ZoneStruct *zone = &_sceneZones[15];
@@ -736,10 +723,11 @@ void Scene::processEnvironmentSound() {
 
 			const int16 sampleIdx = _sampleAmbiance[currentAmb];
 			if (sampleIdx != -1) {
-				/*int16 decal = _sampleRound[currentAmb];*/
+				int16 decal = _sampleRound[currentAmb];
 				int16 repeat = _sampleRepeat[currentAmb];
 
-				_engine->_sound->playSample(sampleIdx, repeat, 110, -1, 110);
+				const uint16 pitchbend = 0x1000 + _engine->getRandomNumber(decal) - (decal / 2);
+				_engine->_sound->mixSample(sampleIdx, pitchbend, repeat, 110, 110);
 				break;
 			}
 		}
@@ -797,7 +785,10 @@ void Scene::checkZoneSce(int32 actorIdx) {
 		    (currentZ >= zone->mins.z && currentZ <= zone->maxs.z)) {
 			switch (zone->type) {
 			default:
-				error("lba2 zone types not yet implemented");
+				warning("lba2 zone types not yet implemented");
+				break;
+			case ZoneType::kFunFrockFix:
+				break;
 			case ZoneType::kCube:
 				if (IS_HERO(actorIdx) && actor->_lifePoint > 0) {
 					_newCube = zone->num;
@@ -866,7 +857,7 @@ void Scene::checkZoneSce(int32 actorIdx) {
 							if (actor->_posObj.y >= (zone->mins.y + zone->maxs.y) / 2) {
 								_engine->_animations->initAnim(AnimationTypes::kTopLadder, AnimType::kAnimationAllThen, AnimationTypes::kStanding, actorIdx); // reached end of ladder
 							} else {
-								_engine->_animations->initAnim(AnimationTypes::kClimbLadder, AnimType::kAnimationTypeRepeat, AnimationTypes::kAnimInvalid, actorIdx); // go up in ladder
+								_engine->_animations->initAnim(AnimationTypes::kClimbLadder, AnimType::kAnimationTypeRepeat, AnimationTypes::kNoAnim, actorIdx); // go up in ladder
 							}
 						}
 					}

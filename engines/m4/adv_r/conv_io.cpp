@@ -50,13 +50,11 @@ namespace M4 {
 #define DECL_POINTER	1
 
 void Converstation_Globals::syncGame(Common::Serializer &s) {
-	uint32 count;
-
 	if (s.isLoading())
 		conv_reset_all();
 
 	// Handle size
-	count = convSave.size();
+	uint32 count = convSave.size();
 	s.syncAsUint32LE(count);
 	if (s.isLoading())
 		convSave.resize(count);
@@ -73,9 +71,7 @@ void Converstation_Globals::conv_reset_all() {
 /*------------------------------------------------------------------------*/
 
 void cdd_init(void) {
-	int i;
-
-	for (i = 0; i < 16; i++) {
+	for (int i = 0; i < 16; i++) {
 		_G(cdd).text[i] = nullptr;
 		_G(cdd).snd_files[i] = nullptr;
 	}
@@ -195,7 +191,6 @@ void conv_set_decl_val(Conv *c, decl_chunk *decl, int32 val) {
 
 void conv_export_value(Conv *c, int32 val, int index) {
 	int32 ent = 0, tag = 0, next;
-	decl_chunk *decl;
 	int32 ent_old = 0;
 	int i = 0;
 
@@ -212,7 +207,7 @@ void conv_export_value(Conv *c, int32 val, int index) {
 		switch (tag) {
 		case DECL_CHUNK:
 			if (i == index) {
-				decl = get_decl(c, ent);
+				decl_chunk *decl = get_decl(c, ent);
 				conv_set_decl_val(c, decl, val);
 			}
 			i++;
@@ -349,6 +344,7 @@ static void conv_save_state(Conv *c) {
 	int32 next, tag;	// receive conv_ops_get_entry results
 	int32 myCNode = c->myCNode;
 	char fname[9];
+	memset(fname, 0, 9);
 
 	int32 num_decls = 0;
 	int32 num_entries = 0;
@@ -390,9 +386,8 @@ static void conv_save_state(Conv *c) {
 	// if consave data exists, read it in
 
 	int32 file_size = 0;
-	int32 offset = -1;
-	int32 prev_size = 0;
-	char *conv_save_buff = nullptr;
+	int32 offset;
+	char *conv_save_buff;
 	bool overwrite_file = false;
 
 	if (!_GC(convSave).empty()) {
@@ -413,7 +408,7 @@ static void conv_save_state(Conv *c) {
 
 		if (offset != -1) {
 			overwrite_file = true;
-			prev_size = READ_LE_UINT32(&conv_save_buff[offset]);
+			int32 prev_size = READ_LE_UINT32(&conv_save_buff[offset]);
 			prev_size += 3 * sizeof(int32);
 			offset += sizeof(int32);	// Skip header. (name + size)
 		} else {
@@ -756,7 +751,7 @@ Conv *conv_load(const char *filename, int x1, int y1, int32 myTrigger, bool want
 	else
 		Common::sprintf_s(fullpathname, "%s.chk", filename);
 
-	SysFile fp(fullpathname, BINARY);
+	SysFile fp(fullpathname);
 	if (!fp.exists()) {
 		// Force the file open
 		error_show(FL, 'CNVL', "couldn't conv_load %s", fullpathname);

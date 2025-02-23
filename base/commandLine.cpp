@@ -39,6 +39,7 @@
 #include "common/system.h"
 #include "common/textconsole.h"
 #include "common/tokenizer.h"
+#include "common/zip-set.h"
 
 #include "gui/ThemeEngine.h"
 
@@ -113,6 +114,9 @@ static const char HELP_STRING1[] =
 	"  -f, --fullscreen         Force full-screen mode\n"
 	"  -F, --no-fullscreen      Force windowed mode\n"
 	"  -g, --gfx-mode=MODE      Select graphics mode\n"
+#ifdef USE_OPENGL
+	"  --shader=PATH            Name of internal shader or path to shader file (OpenGL only)\n"
+#endif
 	"  --stretch-mode=MODE      Select stretch mode (center, pixel-perfect, even-pixels,\n"
 	"                           fit, stretch, fit_force_aspect)\n"
 	"  --scaler=MODE            Select graphics scaler (normal,hq,edge,advmame,sai,\n"
@@ -885,7 +889,6 @@ Common::String parseCommandLine(Common::StringMap &settings, int argc, const cha
 			DO_LONG_OPTION_BOOL("disable-sdl-audio")
 			END_OPTION
 #endif
-
 			DO_LONG_OPTION_BOOL("multi-midi")
 			END_OPTION
 
@@ -964,6 +967,21 @@ Common::String parseCommandLine(Common::StringMap &settings, int argc, const cha
 			END_OPTION
 
 			DO_LONG_OPTION_PATH("themepath")
+			END_OPTION
+
+			DO_LONG_OPTION("shader")
+				Common::SearchSet _shaderSet;
+				Common::generateZipSet(_shaderSet, "shaders.dat", "shaders*.dat");
+				Common::FSNode path(Common::Path::fromCommandLine(option));
+				
+				if (!_shaderSet.hasFile(Common::Path::fromCommandLine(option))) {
+					if (!path.exists()) {
+						usage("Non-existent shader path '%s' or internal shader", option);
+					} else if (!path.isReadable()) {
+						usage("Non-readable shader path '%s'", option);
+					}
+				}
+				settings["shader"] = path.getPath().toConfig();
 			END_OPTION
 
 			DO_LONG_COMMAND("list-themes")
@@ -1946,7 +1964,10 @@ bool processSettings(Common::String &command, Common::StringMap &settings, Commo
 	} else if (command == "version") {
 		printf("%s\n", gScummVMFullVersion);
 #ifdef SDL_BACKEND
-#ifdef USE_SDL2
+#ifdef USE_SDL3
+		int sdlLinkedVersion = SDL_GetVersion();
+		printf("Using SDL backend with SDL %d.%d.%d\n", SDL_VERSIONNUM_MAJOR(sdlLinkedVersion), SDL_VERSIONNUM_MINOR(sdlLinkedVersion), SDL_VERSIONNUM_MICRO(sdlLinkedVersion));
+#elif defined(USE_SDL2)
 		SDL_version sdlLinkedVersion;
 		SDL_GetVersion(&sdlLinkedVersion);
 		printf("Using SDL backend with SDL %d.%d.%d\n", sdlLinkedVersion.major, sdlLinkedVersion.minor, sdlLinkedVersion.patch);
@@ -2105,6 +2126,7 @@ bool processSettings(Common::String &command, Common::StringMap &settings, Commo
 		"stretch-mode",
 		"scaler",
 		"scale-factor",
+		"shader",
 		"filtering",
 		"gui-theme",
 		"themepath",

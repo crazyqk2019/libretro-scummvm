@@ -136,7 +136,7 @@ static const char *toString(ShapeType type) {
 	}
 }
 
-static void onLog(LogMessageType::Type type, int level, uint32 debugChannels, const char *message) {
+static void onLog(LogMessageType::Type type, int level, uint32 debugChannel, const char *message) {
 	switch (type) {
 	case LogMessageType::kError:
 		_logger->addLog("[error]%s", message);
@@ -467,7 +467,6 @@ static void sceneDetailsWindows(TwinEEngine *engine) {
 
 		ImGuiEx::InputInt("Currently followed actor", &scene->_numObjFollow);
 
-		ImGui::Checkbox("Enable enhancements", &scene->_enableEnhancements);
 		ImGui::Checkbox("Render grid tiles", &scene->_flagRenderGrid);
 		ImGuiEx::InputInt("Current script value", &scene->_currentScriptValue);
 		ImGuiEx::InputInt("Talking actor", &scene->_talkingActor);
@@ -539,7 +538,7 @@ static void actorDetailsWindow(int &actorIdx, TwinEEngine *engine) {
 				ImGui::TableNextColumn();
 				ImGui::Text("Strength");
 				ImGui::TableNextColumn();
-				ImGui::Text("%i", actor->_strengthOfHit);
+				ImGui::Text("%i", actor->_hitForce);
 				ImGui::TableNextColumn();
 				ImGui::Text("Hit by");
 				ImGui::TableNextColumn();
@@ -945,6 +944,7 @@ void onImGuiRender() {
 }
 
 void onImGuiCleanup() {
+	Common::setLogWatcher(nullptr);
 	delete _logger;
 	_logger = nullptr;
 }

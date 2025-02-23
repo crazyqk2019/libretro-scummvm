@@ -127,8 +127,10 @@ protected:
 		Rational mediaRate;
 	};
 
+public:
 	struct Track;
 
+protected:
 	class SampleDesc {
 	public:
 		SampleDesc(Track *parentTrack, uint32 codecTag);
@@ -144,6 +146,7 @@ protected:
 		uint32 _codecTag;
 	};
 
+public:
 	enum CodecType {
 		CODEC_TYPE_MOV_OTHER,
 		CODEC_TYPE_VIDEO,
@@ -194,18 +197,9 @@ protected:
 		int32 commentStrOffset;
 	};
 
-	enum class HotSpotType {
-		undefined,
-		anim,
-		cnod,
-		link,
-		navg,
-		soun,
-	};
-
 	struct PanoHotSpot {
 		uint16 id;
-		HotSpotType type;
+		uint32 type;
 		uint32 typeData; // for link and navg, the ID in the link and navg table
 
 		// Canonical view for this hotspot
@@ -225,6 +219,14 @@ protected:
 
 	struct PanoHotSpotTable {
 		Array<PanoHotSpot> hotSpots;
+
+		PanoHotSpot *get(uint16 id) {
+			for (uint i = 0; i < hotSpots.size(); i++)
+				if (hotSpots[i].id == id)
+					return &hotSpots[i];
+
+			return nullptr;
+		}
 	};
 
 	struct PanoStringTable {
@@ -248,16 +250,25 @@ protected:
 
 	struct PanoLinkTable {
 		Array<PanoLink> links;
+
+		PanoLink *get(uint16 id) {
+			for (uint i = 0; i < links.size(); i++)
+				if (links[i].id == id)
+					return &links[i];
+
+			return nullptr;
+		}
 	};
 
 	struct PanoNavigation {
 		uint16 id;
 
-		uint32 hPan;
-		uint32 vPan;
-		uint32 zoom;
+		// Info for Navigable Movie Controller
+		float navgHPan;	// the object's orientation in the scene
+		float navgVPan;
+		float navgZoom;
 
-		Rect rect; // Starting rect for zoom out transitions
+		Rect zoomRect; // Starting rect for zoom out transitions
 
 		// Values to set at the destination node
 		int32 nameStrOffset;
@@ -266,6 +277,14 @@ protected:
 
 	struct PanoNavigationTable {
 		Array<PanoNavigation> navs;
+
+		PanoNavigation *get(uint16 id) {
+			for (uint i = 0; i < navs.size(); i++)
+				if (navs[i].id == id)
+					return &navs[i];
+
+			return nullptr;
+		}
 	};
 
 	struct PanoTrackSample {
@@ -321,6 +340,8 @@ protected:
 		uint16 opcolor[3];         // RGB values used in the transfer mode specified by graphicsMode.
 
 		uint16 soundBalance; // Controls the sound mix between the computer's two speakers, usually set to 0.
+
+		uint targetTrack;
 	};
 
 	enum class MovieType {
@@ -349,6 +370,7 @@ protected:
 		float initialVPan = 1.0f;
 	};
 
+protected:
 	virtual SampleDesc *readSampleDesc(Track *track, uint32 format, uint32 descSize) = 0;
 
 	uint32 _timeScale;      // movie time

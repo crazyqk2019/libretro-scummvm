@@ -33,6 +33,7 @@ MODULE_OBJS = \
 	castmember/filmloop.o \
 	castmember/movie.o \
 	castmember/palette.o \
+	castmember/richtext.o \
 	castmember/script.o \
 	castmember/shape.o \
 	castmember/sound.o \
@@ -147,6 +148,7 @@ MODULE_OBJS = \
 	lingo/xlibs/spacemgr.o \
 	lingo/xlibs/stagetc.o \
 	lingo/xlibs/syscolor.o \
+	lingo/xlibs/tengu.o \
 	lingo/xlibs/unittest.o \
 	lingo/xlibs/valkyrie.o \
 	lingo/xlibs/videodiscxobj.o \
@@ -163,10 +165,12 @@ MODULE_OBJS = \
 	lingo/xlibs/xwin.o \
 	lingo/xlibs/yasix.o \
 	lingo/xtras/directsound.o \
+	lingo/xtras/filextra.o \
 	lingo/xtras/keypoll.o \
 	lingo/xtras/qtvrxtra.o \
 	lingo/xtras/scrnutil.o \
-	lingo/xtras/timextra.o
+	lingo/xtras/timextra.o \
+	lingo/xtras/xsound.o
 
 
 ifdef USE_IMGUI

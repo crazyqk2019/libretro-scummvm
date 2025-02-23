@@ -34,10 +34,10 @@ void Room809::preload() {
 }
 
 void Room809::init() {
-	if (_G(game).previous_room == KERNEL_RESTORING_GAME || _G(flags[V263]))
+	if (_G(game).previous_room == KERNEL_RESTORING_GAME || _G(flags)[V263])
 		digi_preload("950_s29", -1);
 
-	_field20 = 0;
+	_field20Fl = false;
 	ws_walk_load_shadow_series(S8_SHADOW_DIRS1, S8_SHADOW_NAMES1);
 	ws_walk_load_walker_series(S8_SHADOW_DIRS2, S8_SHADOW_NAMES2, false);
 	_mcHandsBehindBackSeries = series_load("MEI CHIEN HANDS BEHIND BACK", -1, nullptr);
@@ -77,11 +77,12 @@ void Room809::init() {
 		hotspot_set_active(_G(currentSceneDef).hotspots, "MEI CHEN  ", false);
 		hotspot_set_active(_G(currentSceneDef).hotspots, "MEI CHEN   ", false);
 
-		_mcTrekMach = triggerMachineByHash_3000(8, 4, *S8_SHADOW_DIRS2, *S8_SHADOW_DIRS1, _field28, 317, _field2C, Walker::player_walker_callback, "mc_trek");
+		_mcTrekMach = triggerMachineByHash_3000(8, 4, *S8_SHADOW_DIRS2, *S8_SHADOW_DIRS1,
+			_mcPosX, 317, _mcFacing, Walker::player_walker_callback, "mc_trek");
 		setGlobals3(_mcHandsBehindBackSeries, 1, 17);
 		sendWSMessage_3840000(_mcTrekMach, 38);
 		_enableHotspotName = "MEI CHEN     ";
-		_byte1A1990[_field24] = 0;
+		_byte1A1990[_field24_index] = 0;
 
 		kernel_timing_trigger(60, 36, "verify mc's position");
 		if (inv_object_in_scene("two soldiers' shields", 809)) {
@@ -100,11 +101,11 @@ void Room809::init() {
 		ws_demand_location(_G(my_walker), 90, 317);
 		_mcTrekMach = triggerMachineByHash_3000(8, 4, *S8_SHADOW_DIRS2, *S8_SHADOW_DIRS1, 70, 317, 3, Walker::player_walker_callback, "mc_trek");
 
-		_field24 = 0;
-		_field28 = 160;
+		_field24_index = 0;
+		_mcPosX = 160;
 
-		if (_G(flags[V263]) == 0) {
-			_G(flags[V263]) = 1;
+		if (_G(flags)[V263] == 0) {
+			_G(flags)[V263] = 1;
 
 			moveScreen(1280, 0);
 			_G(camera_reacts_to_player) = false;
@@ -138,25 +139,484 @@ void Room809::init() {
 
 void Room809::pre_parser() {
 	if (player_said("look at", "gate")) {
-		_dword1A1998 = 9;
+		_playerFacing = 9;
 	} else if (player_said("look at", "mausoleum") || player_said("go", "west")) {
-		_dword1A1998 = 3;
+		_playerFacing = 3;
 	} else if (player_said("look at", "urn")) {
-		_dword1A1998 = -1;
+		_playerFacing = -1;
 	} else {
 		player_update_info(_G(my_walker), &_G(player_info));
-		_dword1A1998 = _G(player_info).x >= _G(player).click_x ? 9 : 3;
+		_playerFacing = _G(player_info).x >= _G(player).click_x ? 9 : 3;
 	}
 
 	if (!player_said("spleen") || inv_object_in_scene("two soldiers' shields", 809)) {
-		_G(player).need_to_walk = false;
-		_G(player).ready_to_walk = true;
-		_G(player).waiting_for_walk = false;
+		_G(player).resetWalk();
 	}
 }
 
 void Room809::parser() {
-	// TODO Not implemented yet
+	_G(player).command_ready = false;
+	if (inv_player_has(_G(player).noun)) {
+		_G(player).command_ready = true;
+		return;
+	}
+
+	int32 eax = -1;
+
+	switch (_G(kernel).trigger) {
+	case -1:
+		if (checkSaid()) {
+			int32 destX;
+			int32 destY;
+			player_update_info(_G(my_walker), &_G(player_info));
+			if (_G(player_info).x >= _G(player).click_x) {
+				destY = imath_min(145, _G(player).x + 20);
+				destY = imath_max(destY, 145);
+				if (_G(player).click_y < 315) {
+					if (_playerFacing < 0)
+						_playerFacing = 11;
+					destX = 315;
+				} else if (_G(player).click_y <= 321) {
+					destX = _G(player).click_y;
+				} else {
+					if (_playerFacing < 0)
+						_playerFacing = 7;
+
+					destX = 321;
+				}
+			} else {
+				if (_G(player).click_x >= 1340)
+					destY = 1349;
+				else
+					destY = imath_max(_G(player_info).x, _G(player).click_x - 20);
+
+				if (_G(player).click_y < 315) {
+					if (_playerFacing < 0)
+						_playerFacing = 1;
+					destX = 315;
+				} else if (_G(player).click_y <= 321)
+					destX = _G(player).click_y;
+				else {
+					if (_playerFacing < 0)
+						_playerFacing = 5;
+
+					destX = 321;
+				}
+			}
+			ws_walk(_G(my_walker), destX, destY, nullptr, 1, _playerFacing, true);
+		} else {
+			kernel_trigger_dispatchx(kernel_trigger_create(1));
+		}
+
+		break;
+
+	case 1:
+		player_update_info();
+		if (_G(player_info).x < 1340 && -_G(game_buff_ptr)->x1 < 1259) {
+			g_engine->camera_shift_xy(1259, 0);
+		}
+
+		if (player_said_any("look", "look at"))
+			eax = 1;
+		else if (player_said_any("gear", "use"))
+			eax = 0;
+		else if (player_said("take"))
+			eax = 2;
+		else if (player_said("talk to"))
+			eax = 3;
+		else if (player_said_any("walk to", "walk", "spleen"))
+			eax = 5;
+		else if (player_said("journal"))
+			eax = 4;
+		else if (player_said("go"))
+			eax = 6;
+
+		switch (eax) {
+		case 1:
+			if (player_said(" ")) {
+				digi_play("809r02", 1, 255, -1, -1);
+			} else if (player_said("mountains")) {
+				digi_play("809r34", 1, 255, -1, -1);
+			} else if (player_said("diorama")) {
+				digi_play("809r02", 1, 255, -1, -1);
+			} else if (player_said("lake")) {
+				digi_play("809r03", 1, 255, -1, -1);
+			} else if (player_said("mausoleum")) {
+				digi_play("809r04", 1, 255, -1, -1);
+			} else if (player_said("river")) {
+				digi_play("809r05", 1, 255, -1, -1);
+			} else if (player_said("buildings")) {
+				digi_play("809r06", 1, 255, -1, -1);
+			} else if (player_said("dragon head")) {
+				digi_play("809r07", 1, 255, _G(flags[V101]) ? 39 : -1, -1);
+			} else if (player_said("soldier ")) {
+				digi_play("809r08", 1, 255, -1, -1);
+			} else if (player_said("lit urn")) {
+				digi_play("com060", 1, 255, -1, 997);
+			} else if (player_said("unlit urn")) {
+				digi_play("com061", 1, 255, -1, 997);
+			} else if (player_said("urn")) {
+				digi_play("809r33", 1, 255, -1, -1);
+			} else if (player_said("weir")) {
+				digi_play("809r10", 1, 255, -1, -1);
+			} else if (player_said("gate")) {
+				digi_play("809r09", 1, 255, -1, -1);
+			} else if (player_said_any("mei chen", "mei chen ", "mei chen  ") || (player_said("mei chen   ") && !inv_object_in_scene("two soldiers' shields", 809))) {
+				kernel_trigger_dispatchx(kernel_trigger_create(40));
+			} else if (player_said("mei chen   ")) {
+				digi_play("809r11", 1, 255, -1, -1);
+			} else {
+				_G(player).command_ready = true;
+			}
+			break;
+
+		case 2:
+			_G(player).command_ready = true;
+			break;
+
+		case 3:
+			if (inv_object_in_scene("two soldiers' shields", 809)) {
+				player_set_commands_allowed(false);
+				inv_give_to_player("two soldiers' shields");
+				terminateMachine(_809rp01Mach);
+				_809rp01Mach = series_play("809rp01", 256, 18, 52, 5, 0, 100, 0, 0, 0, -1);
+			} else {
+				player_update_info(_G(my_walker), &_G(player_info));
+				_playerDestX = _G(player_info).x;
+				_playerDestY = _G(player_info).y;
+
+				player_update_info(_mcTrekMach, &_G(player_info));
+
+				if (_playerDestX <= _G(player_info).x) {
+					if (_G(player_info).x - 15 <= _playerDestX) {
+						ws_walk(_G(my_walker), _playerDestX, _playerDestY, nullptr, 42, 5, true);
+					} else {
+						ws_walk(_G(my_walker), _G(player_info).x - 15, 315, nullptr, 42, 5, true);
+					}
+				} else if (_G(player_info).x + 15 >= _playerDestX) {
+					ws_walk(_G(my_walker), _playerDestX, _playerDestY, nullptr, 42, 7, true);
+				} else {
+					ws_walk(_G(my_walker), _G(player_info).x + 15, 315, nullptr, 42, 7, true);
+				}
+			}
+			break;
+
+		case 4:
+			digi_play("809r32", 1, 255, -1, -1);
+			break;
+
+		case 5:
+			if (inv_object_in_scene("two soldiers' shields", 809)) {
+				player_set_commands_allowed(false);
+				inv_give_to_player("two soldiers' shields");
+				terminateMachine(_809rp01Mach);
+				_809rp01Mach = series_plain_play("809rp01", 1, 2, 100, 0, 5, 52, true);
+			}
+
+			break;
+		case 6:
+			if (player_said("east")) {
+				kernel_trigger_dispatchx(kernel_trigger_create(53));
+			} else if (player_said("west")) {
+				kernel_trigger_dispatchx(kernel_trigger_create(65));
+			}
+
+			break;
+
+		case 0:
+		default:
+			if (player_said("lake") && inv_player_has(_G(player).verb)) {
+				if (player_said("soldier's shield")) {
+					digi_play("809r18", 1, 255, -1, -1);
+				} else if (player_said("two soldiers' shields")) {
+					ws_walk(_G(my_walker), 1346, 318, nullptr, 48, 3, true);
+				} else if (player_said("farmer's shovel")) {
+					ws_walk(_G(my_walker), 1346, 318, nullptr, 44, 3, true);
+				} else {
+					digi_play("809r16", 1, 255, -1, -1);
+				}
+			} else if (player_said_any("mei chen", "mei chen ", "mei chen  ", "mei chen   ") && inv_player_has(_G(player).verb)) {
+				digi_play("com017", 1, 255, -1, 997);
+			} else {
+				_G(player).command_ready = true;
+			}
+			break;
+		}
+		break;
+
+	case 39:
+		_G(flags[V101]) = 1;
+		digi_play("809r07a", 1, 255, -1, -1);
+		break;
+
+	case 40:
+		player_update_info(_G(my_walker), &_G(player_info));
+		_playerFacing = _G(player_info).facing;
+		_playerDestX = _G(player_info).x;
+		_playerDestY = _G(player_info).y;
+
+		player_update_info(_mcTrekMach, &_G(player_info));
+
+		if (_G(player_info).x >= _playerDestX) {
+			if (_G(player_info).x - _playerDestX <= 30) {
+				ws_walk(_G(my_walker), _playerDestX, _playerDestY, nullptr, 41, 5, true);
+			} else {
+				ws_walk(_G(my_walker), _playerDestX, _playerDestY, nullptr, 41, 4, true);
+			}
+		} else if (_playerDestX - _G(player_info).x <= 30) {
+			ws_walk(_G(my_walker), _playerDestX, _playerDestY, nullptr, 41, 7, true);
+		} else {
+			ws_walk(_G(my_walker), _playerDestX, _playerDestY, nullptr, 41, 8, true);
+		}
+
+		break;
+
+	case 41:
+		digi_play("809r11", 1, 255, -1, -1);
+		break;
+
+	case 42:
+		player_set_commands_allowed(false);
+		setGlobals1(_ripTalkerPos5Series, 1, 4, 1, 4, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0);
+		sendWSMessage_110000(_G(my_walker), -1);
+		switch (imath_ranged_rand(1, 4)) {
+		case 1:
+			digi_play("com034", 1, 255, 43, 997);
+			break;
+
+		case 2:
+			digi_play("com035", 1, 255, 43, 997);
+			break;
+
+		case 3:
+			digi_play("com036", 1, 255, 43, 997);
+			break;
+
+		case 4:
+		default:
+			digi_play("com037", 1, 255, 43, 997);
+			break;
+		}
+
+		break;
+
+	case 43:
+		player_set_commands_allowed(true);
+		sendWSMessage_150000(_G(my_walker), -1);
+		switch (imath_ranged_rand(1, 4)) {
+		case 1:
+			digi_play("com038", 1, 255, -1, 997);
+			break;
+
+		case 2:
+			digi_play("com039", 1, 255, -1, 997);
+			break;
+
+		case 3:
+			digi_play("com040", 1, 255, -1, 997);
+			break;
+
+		case 4:
+		default:
+			digi_play("com041", 1, 255, -1, 997);
+			break;
+		}
+
+		break;
+
+	case 44:
+		player_set_commands_allowed(false);
+		_G(flags[V103]) = 1;
+		if (-_G(game_buff_ptr)->x1 < 1259) {
+			g_engine->camera_shift_xy(1259, 0);
+		}
+
+		ws_hide_walker(_G(my_walker));
+		_809hallSeries = series_load("809rp03", -1, nullptr);
+		series_play("809rp03", 0, 0, 45, 5, 0, 100, 0, 0, 0, 104);
+
+		break;
+
+	case 45:
+		series_play("809rp03", 0, 0, 46, 5, 0, 100, 0, 0, 105, -1);
+		digi_play("809_s02", 2, 255, -1, -1);
+
+		break;
+
+	case 46:
+		series_play("809rp03", 0, 2, 47, 5, 0, 100, 0, 0, 0, -1);
+		digi_play("809R17", 1, 255, -1, -1);
+
+		break;
+
+	case 47:
+		player_set_commands_allowed(true);
+		series_unload(_809hallSeries);
+		ws_unhide_walker(_G(my_walker));
+		ws_demand_facing(_G(my_walker), 3);
+
+		break;
+
+	case 48:
+		player_set_commands_allowed(false);
+		if (-_G(game_buff_ptr)->x1 < 1259) {
+			g_engine->camera_shift_xy(1259, 0);
+		}
+
+		ws_hide_walker(_G(my_walker));
+		series_play("809rp01", 256, 0, 49, 5, 0, 100, 0, 0, 0, 169);
+
+		break;
+
+
+	case 49:
+		_809rp01Mach = series_play("809rp01", 256, 16, 50, 5, 0, 100, 0, 0, 170, -1);
+		digi_play("809_s06", 2, 255, -1, -1);
+
+		break;
+
+	case 50:
+		player_set_commands_allowed(true);
+		inv_move_object("two soldiers' shields", 809);
+		kernel_timing_trigger(imath_ranged_rand(360, 540), 51, nullptr);
+
+		break;
+
+	case 51:
+		if (!_field20Fl && inv_object_in_scene("two soldiers' shields", 809)) {
+			terminateMachine(_809rp01Mach);
+			_809rp01Mach = series_play("809shufl", 0, 17, -1, 7, 1, 100, 0, 0, 0, -1);
+			digi_play("809_s03", 2, 255, -1, -1);
+			kernel_timing_trigger(imath_ranged_rand(360, 540), 51, nullptr);
+		}
+
+		break;
+
+	case 52:
+		player_set_commands_allowed(true);
+		terminateMachine(_809rp01Mach);
+		ws_unhide_walker(_G(my_walker));
+		ws_demand_facing(_G(my_walker), 3);
+		ws_demand_location(_G(my_walker), 1346, 318);
+		// The load is just used to get the SeriesId if already loaded, to unload it. So it's normal there's a load and unload one after the other, so not remove.
+		_809hallSeries = series_load("809rp01", -1, nullptr);
+		series_unload(_809hallSeries);
+
+		kernel_trigger_dispatchx(kernel_trigger_create(1));
+
+		break;
+
+	case 53:
+		player_set_commands_allowed(false);
+		player_update_info(_mcTrekMach, &_G(player_info));
+		if (_G(player_info).x < 1265) {
+			kernel_timing_trigger(30, 53, nullptr);
+		} else if (inv_object_in_scene("two soldiers' shields", 809)) {
+			_field20Fl = true;
+			series_unload(0);
+			series_unload(1);
+			series_unload(3);
+			series_unload(4);
+
+			digi_preload("809_s04", -1);
+			digi_preload("809m05", -1);
+			digi_preload("809r19", -1);
+			digi_preload("809_s05", -1);
+
+			// The load is just used to get the SeriesId if already loaded, to unload it. So it's normal there's a load and unload one after the other, so not remove.
+			_809hallSeries = series_load("809rp01", -1, nullptr);
+			series_unload(_809hallSeries);
+			_809hallSeries = series_load("809shufl", -1, nullptr);
+			series_unload(_809hallSeries);
+
+			terminateMachine(_809rp01Mach);
+			_809crossMach = series_stream("809cross", 5, 0, 56);
+			series_stream_break_on_frame(_809crossMach, 119, 55);
+			digi_play("809_s04", 2, 255, -1, -1);
+			digi_play("809M05", 1, 255, 54, -1);
+		} else if (_G(flags[V102])) {
+			digi_play("809M02", 1, 255, 64, -1);
+		} else {
+			_G(flags[V102]) = 1;
+			if (_G(flags[V103])) {
+				digi_play("809M02", 1, 255, 61, -1);
+			} else {
+				digi_play("809M02", 1, 255, 59, -1);
+			}
+		}
+		break;
+
+	case 54:
+		digi_play("809r19", 1, 255, -1, -1);
+		break;
+
+	case 55:
+		digi_play("809_s05", 2, 255, -1, -1);
+		break;
+
+	case 56:
+		_809crossMach = series_stream("809exit", 5, 0, -1);
+		series_stream_break_on_frame(_809crossMach, 49, 57);
+
+		break;
+
+	case 57:
+		disable_player_commands_and_fade_init(58);
+		break;
+
+	case 58:
+		_G(game).new_room = 810;
+		break;
+
+	case 59:
+		digi_play("809m04", 1, 255, 60, -1);
+		break;
+
+	case 60:
+		player_set_commands_allowed(true);
+		digi_play("809r14", 1, 255, 63, -1);
+
+		break;
+
+	case 61:
+		digi_play("809m03", 1, 255, 62, -1);
+		break;
+
+	case 62:
+		player_set_commands_allowed(true);
+		digi_play("809r12", 1, 255, 63, -1);
+
+		break;
+
+	case 63:
+		player_set_commands_allowed(true);
+		digi_play("809r13", 1, 255, -1, -1);
+
+		break;
+
+	case 64:
+		player_set_commands_allowed(true);
+		digi_play("809r15", 1, 255, -1, -1);
+
+		break;
+
+	case 65:
+		ws_walk(_G(my_walker), 120, 317, nullptr, 66, -1, false);
+		break;
+
+	case 66:
+		ws_walk(_G(my_walker), 90, 317, nullptr, -1, 9, true);
+		disable_player_commands_and_fade_init(67);
+
+		break;
+
+	case 67:
+		_G(game).new_room = 808;
+		break;
+
+	default:
+		break;
+	}
 }
 
 void Room809::daemon() {
@@ -402,7 +862,30 @@ void Room809::daemon() {
 		break;
 
 	case 36:
-		// TODO Not implemented yet
+		player_update_info(_mcTrekMach, &_G(player_info));
+
+		if (-_G(game_buff_ptr)->x1 < _G(player_info).x) {
+			if (639 - _G(game_buff_ptr)->x1 <= _G(player_info).x) {
+				_mcTrekDestX = getMcDestX(_G(player_info).x, true);
+				if (669 - _G(game_buff_ptr)->x1 < _G(player_info).x) {
+					ws_demand_facing(_mcTrekMach, 11);
+					ws_demand_location(_mcTrekMach, 669 - _G(game_buff_ptr)->x1, 323);
+				}
+
+				ws_walk(_mcTrekMach, _mcTrekDestX, 323, nullptr, 37, 11, true);
+			}
+		} else {
+			_mcTrekDestX = getMcDestX(_G(player_info).x, false);
+			if (-30 - _G(game_buff_ptr)->x1 > _G(player_info).x) {
+				ws_demand_facing(_mcTrekMach, 1);
+				ws_demand_location(_mcTrekMach, -30 - _G(game_buff_ptr)->x1, 323);
+			}
+
+			ws_walk(_mcTrekMach, _mcTrekDestX, 323, nullptr, 37, 1, true);
+		}
+
+		kernel_timing_trigger(60, 36, "verify mc's position");
+
 		break;
 
 	case 37:
@@ -418,6 +901,59 @@ void Room809::daemon() {
 	default:
 		break;
 	}
+}
+
+void Room809::syncGame(Common::Serializer &s) {
+	s.syncAsSint32LE(_mcPosX);
+	s.syncAsSint32LE(_mcFacing);
+	s.syncAsSint32LE(_mcTrekDestX);
+	s.syncAsSint32LE(_playerDestX);
+	s.syncAsSint32LE(_playerDestY);
+	s.syncAsSint32LE(_playerFacing);
+}
+
+int32 Room809::getMcDestX(int32 xPos, bool facing) {
+	static const uint16 X_THRESHOLDS1[3] = { 540, 960, 1282 };
+	static const uint16 X_THRESHOLDS2[4] = { 0x7fff, 160, 540, 960 };
+	static const uint16 X_DESTS[5] = { 160, 540, 960, 1282 };
+	int32 index;
+
+	if (facing) {
+		index = 0;
+		for (; index < 3; ++index) {
+			if (xPos <= X_THRESHOLDS1[index])
+				break;
+		}
+	} else {
+		index = 3;
+		for (; index > 0; --index) {
+			if (xPos > X_THRESHOLDS2[index])
+				break;
+		}
+	}
+
+	hotspot_set_active(_G(currentSceneDef).hotspots, "MEI CHEN", false);
+	hotspot_set_active(_G(currentSceneDef).hotspots, "MEI CHEN ", false);
+	hotspot_set_active(_G(currentSceneDef).hotspots, "MEI CHEN  ", false);
+	hotspot_set_active(_G(currentSceneDef).hotspots, "MEI CHEN   ", false);
+
+	_enableHotspotName = "MEI CHEN     ";
+	_byte1A1990[index] = 0;
+	_field24_index = index;
+	_mcPosX = X_DESTS[index];
+	_mcFacing = facing ? 11 : 1;
+
+	return _mcPosX;
+}
+
+bool Room809::checkSaid() {
+	if (player_said_any("spleen", "west", "mei chen", "mei chen ",
+			"mei chen  ", "mei chen   ", "farmer's shovel",
+			"two soldiers' shields")
+			|| inv_object_in_scene("two soldiers' shields", 809))
+		return false;
+
+	return true;
 }
 
 } // namespace Rooms

@@ -21,6 +21,7 @@
 
 #include "twine/script/script_life.h"
 #include "common/memstream.h"
+#include "engines/enhancements.h"
 #include "twine/audio/music.h"
 #include "twine/audio/sound.h"
 #include "twine/debugger/debug_state.h"
@@ -926,7 +927,7 @@ int32 ScriptLife::lMESSAGE(TwinEEngine *engine, LifeScriptContext &ctx) {
 	// if we are in sporty mode, we might have triggered a jump with the special action binding
 	// see https://bugs.scummvm.org/ticket/13676 for more details.
 	if (ctx.actor->isJumpAnimationActive()) {
-		engine->_animations->initAnim(AnimationTypes::kStanding, AnimType::kAnimationTypeRepeat, AnimationTypes::kAnimInvalid, OWN_ACTOR_SCENE_INDEX);
+		engine->_animations->initAnim(AnimationTypes::kStanding, AnimType::kAnimationTypeRepeat, AnimationTypes::kNoAnim, OWN_ACTOR_SCENE_INDEX);
 	}
 
 	engine->_text->drawTextProgressive(textIdx);
@@ -1014,7 +1015,7 @@ int32 ScriptLife::lSET_BEHAVIOUR(TwinEEngine *engine, LifeScriptContext &ctx) {
 	const HeroBehaviourType behavior = (HeroBehaviourType)ctx.stream.readByte();
 	debugC(3, kDebugLevels::kDebugScriptsLife, "LIFE::SET_BEHAVIOUR(%i)", (int)behavior);
 
-	engine->_animations->initAnim(AnimationTypes::kStanding, AnimType::kAnimationTypeRepeat, AnimationTypes::kAnimInvalid, OWN_ACTOR_SCENE_INDEX);
+	engine->_animations->initAnim(AnimationTypes::kStanding, AnimType::kAnimationTypeRepeat, AnimationTypes::kNoAnim, OWN_ACTOR_SCENE_INDEX);
 	engine->_actor->setBehaviour(behavior);
 
 	return 0;
@@ -1425,7 +1426,7 @@ int32 ScriptLife::lZOOM(TwinEEngine *engine, LifeScriptContext &ctx) {
 int32 ScriptLife::lPOS_POINT(TwinEEngine *engine, LifeScriptContext &ctx) {
 	const int32 trackIdx = ctx.stream.readByte();
 	debugC(3, kDebugLevels::kDebugScriptsLife, "LIFE::POS_POINT(%i)", (int)trackIdx);
-	if (engine->_scene->_enableEnhancements) {
+	if (engine->enhancementEnabled(kEnhMinorBugFixes)) {
 		if (IS_HERO(ctx.actorIdx) && engine->_scene->_numCube == LBA1SceneId::Citadel_Island_Harbor && trackIdx == 8) {
 			ctx.stream.rewind(2);
 			ctx.stream.writeByte(0x34); // CHANGE_CUBE

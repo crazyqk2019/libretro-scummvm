@@ -64,7 +64,7 @@ DirectorSound::~DirectorSound() {
 	this->stopSound();
 	unloadSampleSounds();
 	delete _speaker;
-	for (auto it : _channels)
+	for (auto &it : _channels)
 		delete it._value;
 }
 
@@ -455,7 +455,7 @@ void DirectorSound::playExternalSound(uint16 menu, uint16 submenu, uint8 soundCh
 }
 
 void DirectorSound::changingMovie() {
-	for (auto it : _channels) {
+	for (auto &it : _channels) {
 		it._value->movieChanged = true;
 		if (isChannelPuppet(it._key)) {
 			setPuppetSound(SoundID(), it._key); // disable puppet sound
@@ -508,7 +508,10 @@ void DirectorSound::stopSound(uint8 soundChannel) {
 
 void DirectorSound::stopSound() {
 	debugC(5, kDebugSound, "DirectorSound::stopSound(): stopping all channels");
-	for (auto it : _channels) {
+	for (auto &it : _channels) {
+		if (!it._value)
+			continue;
+
 		if (it._value->loopPtr)
 			it._value->loopPtr = nullptr;
 		cancelFade(it._key);
@@ -641,7 +644,7 @@ void DirectorSound::playFPlaySound(const Common::Array<Common::String> &fplayLis
 }
 
 void DirectorSound::setChannelVolumeInternal(uint8 soundChannel, uint8 volume) {
-	if (volume == _channels[soundChannel]->volume)
+	if (!(_channels[soundChannel]) || volume == _channels[soundChannel]->volume)
 		return;
 
 	cancelFade(soundChannel);
@@ -662,8 +665,8 @@ void DirectorSound::setChannelVolume(int channel, uint8 volume) {
 		setChannelVolumeInternal(channel, volume);
 	} else {
 		debugC(5, kDebugSound, "DirectorSound::setChannelVolume: setting all channels to volume %d", volume);
-		for (uint i = 0; i < _channels.size(); i++)
-			setChannelVolumeInternal(i + 1, volume);
+			for (auto &it : _channels)
+				setChannelVolumeInternal(it._key, volume);
 	}
 }
 
@@ -673,6 +676,7 @@ SNDDecoder::SNDDecoder()
 	_channels = 0;
 	_size = 0;
 	_rate = 0;
+	_bits = 0;
 	_flags = 0;
 	_loopStart = _loopEnd = 0;
 }
@@ -764,7 +768,7 @@ bool SNDDecoder::processBufferCommand(Common::SeekableReadStreamEndian &stream) 
 		return false;
 	}
 	uint32 frameCount = 0;
-	uint16 bits = 8;
+	_bits = 8;
 	if (encoding == 0x00) {
 		// Standard sound header
 		frameCount = param / _channels;
@@ -779,7 +783,7 @@ bool SNDDecoder::processBufferCommand(Common::SeekableReadStreamEndian &stream) 
 		/*uint32 markerChunk =*/stream.readUint32();
 		/*uint32 instrumentsChunk =*/stream.readUint32();
 		/*uint32 aesRecording =*/stream.readUint32();
-		bits = stream.readUint16();
+		_bits = stream.readUint16();
 
 		// future use
 		stream.readUint16();
@@ -797,9 +801,9 @@ bool SNDDecoder::processBufferCommand(Common::SeekableReadStreamEndian &stream) 
 
 	_flags = 0;
 	_flags |= (_channels == 2) ? Audio::FLAG_STEREO : 0;
-	_flags |= (bits == 16) ? Audio::FLAG_16BITS : 0;
-	_flags |= (bits == 8) ? Audio::FLAG_UNSIGNED : 0;
-	_size = frameCount * _channels * (bits == 16 ? 2 : 1);
+	_flags |= (_bits == 16) ? Audio::FLAG_16BITS : 0;
+	_flags |= (_bits == 8) ? Audio::FLAG_UNSIGNED : 0;
+	_size = frameCount * _channels * (_bits == 16 ? 2 : 1);
 
 	_data = (byte *)malloc(_size);
 	assert(_data);

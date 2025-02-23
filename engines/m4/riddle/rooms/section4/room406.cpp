@@ -47,8 +47,45 @@ static const char *const SAID[][2] = {
 	{ nullptr, nullptr }
 };
 
+struct HotspotPatch {
+	const char *_vocab;
+	const char *_verb;
+	int16 _x1;
+	int16 _y1;
+	int16 _x2;
+	int16 _y2;
+	int16 _feetX;
+	int16 _feetY;
+};
+
+static const HotspotPatch HOTSPOT_PATCHES[] = {
+	{ "BILLIARD BALL",  "LOOK AT", 204, 304, 214, 312, 180, 348 },
+	{ "SWITCH",         "LOOK AT", 419, 233, 428, 244, 400, 340 },
+	{ "ACE OF SPADES ", "LOOK AT", 412, 233, 426, 244, 400, 340 },
+	{ "ACE OF SPADES",  "LOOK AT", 412, 233, 426, 244, 400, 340 },
+	{ nullptr, nullptr, 0, 0, 0, 0, 0, 0 }
+};
+
+void Room406::patchHotspots() {
+	for (HotSpotRec *hs = _G(currentSceneDef).hotspots; hs; hs = hs->next) {
+		for (const HotspotPatch *p = HOTSPOT_PATCHES; p->_vocab; ++p) {
+			if (hs->vocab && hs->verb && !strcmp(hs->vocab, p->_vocab) &&
+					!strcmp(hs->verb, p->_verb)) {
+				hs->ul_x = p->_x1;
+				hs->ul_y = p->_y1;
+				hs->lr_x = p->_x2;
+				hs->lr_y = p->_y2;
+				hs->feet_x = p->_feetX;
+				hs->feet_y = p->_feetY;
+				break;
+			}
+		}
+	}
+}
+
 void Room406::init() {
 	player_set_commands_allowed(false);
+	patchHotspots();
 
 	switch (_G(flags)[kBilliardsTableState]) {
 	case 0:
@@ -142,7 +179,7 @@ void Room406::init() {
 		hotspot_set_active("ENVELOPE", false);
 		hotspot_set_active("KEYS", false);
 	} else if (deskDrawerState == 1000) {
-		ws_demand_facing(1);
+		ws_demand_facing(_G(my_walker), 1);
 		_rptmhr = series_load("RPTMHR11");
 		setGlobals1(_rptmhr, 1, 5, 5, 5, 0, 5, 1, 1, 1);
 		sendWSMessage_110000(-1);
@@ -166,7 +203,7 @@ void Room406::init() {
 			hotspot_set_active("KEYS", true);
 		}
 	} else if (_gamesDrawerState == 1000) {
-		ws_demand_facing(11);
+		ws_demand_facing(_G(my_walker), 11);
 		_ripReachHand = series_load("RIP TREK MED REACH HAND POS1");
 		setGlobals1(_ripReachHand, 1, 10, 10, 10, 0, 10, 1, 1, 1);
 		sendWSMessage_110000(-1);
@@ -195,7 +232,7 @@ void Room406::init() {
 		if (_G(flags)[kBilliardsFan])
 			digi_play_loop("456_s03a", 3, 255, -1, 456);
 
-		ws_demand_location(400, 340, 1);
+		ws_demand_location(_G(my_walker), 400, 340, 1);
 		_ripHiHand = series_load("rip trek hi 1 hand");
 		setGlobals1(_ripHiHand, 1, 5, 5, 5, 0, 5, 1, 1, 1);
 		sendWSMessage_110000(310);
@@ -207,8 +244,8 @@ void Room406::init() {
 			digi_play_loop("456_s03a", 3, 255, -1, 456);
 		}
 
-		ws_demand_location(603, 327, 9);
-		ws_walk(530, 332, nullptr, 300, 9);
+		ws_demand_location(_G(my_walker), 603, 327, 9);
+		ws_walk(_G(my_walker), 530, 332, nullptr, 300, 9);
 		break;
 	}
 }
@@ -565,7 +602,7 @@ void Room406::parser() {
 			break;
 		case 69:
 			player_set_commands_allowed(false);
-			ws_walk(205, 333, nullptr, 1, 5);
+			ws_walk(_G(my_walker), 205, 333, nullptr, 1, 5);
 			break;
 		default:
 			break;

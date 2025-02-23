@@ -1273,7 +1273,9 @@ Common::Error ScummEngine::init() {
 			{ GID_DIG,      "The Dig"                  },
 			{ GID_DIG,      "The Dig Demo"             },
 			{ GID_FT,       "Full Throttle"            },
-			{ GID_FT,       "Full Throttle Demo"       }
+			{ GID_FT,       "Full Throttle Demo"       },
+			{ GID_FT,       "Vollgas"                  },
+			{ GID_FT,       "Vollgas Demo"             }
 		};
 
 		bool macScumm = false;
@@ -1363,6 +1365,16 @@ Common::Error ScummEngine::init() {
 
 			if (!resource.hasResFork())
 				return Common::Error(Common::kReadingFailed, Common::U32String::format(_("Could not find resource fork in Macintosh resource file %s"), macResourceFile.toString().c_str()));
+
+			// The Dig is special, in that it has a smaller launcher
+			// executable that, I think, decides which one of the
+			// real executables to run. Check that the user didn't
+			// accidentally pick the launcher one.
+			if (_game.id == GID_DIG) {
+				if (resource.getResLength(MKTAG('M', 'B', 'A', 'R'), 128) == 0) {
+					return Common::Error(Common::kReadingFailed, Common::U32String::format(_("'%s' appears to be the wrong Dig executable. It may be the launcher one found in the CD root, which does not contain any of the necessary menu and dialog definitions. Look for a 'The Dig f' folder on your CD. Any one from its sub-folders should be what you need."), filename));
+				}
+			}
 
 			resource.close();
 		}

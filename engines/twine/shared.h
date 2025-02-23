@@ -38,16 +38,16 @@
 /**
  * This gameflag indicates that the inventory items are taken from Twinson because he went to jail
  */
-#define GAMEFLAG_INVENTORY_DISABLED 70
+#define GAMEFLAG_INVENTORY_DISABLED 70 // Any prison FLAG_CONSIGNE
 // Hit
 #define GAMEFLAG_VIDEO_BAFFE 200
 // Hit, band-aid
 #define GAMEFLAG_VIDEO_BAFFE2 201
 // Hit, black eye
 #define GAMEFLAG_VIDEO_BAFFE3 202
-// Ferry #1
+// Ferry #1 Citadel Island <-> Principal Island
 #define GAMEFLAG_VIDEO_BATEAU 203
-// Temple of Bu
+// White Leaf Desert, Temple of Bu
 #define GAMEFLAG_VIDEO_TEMPLE 204
 // White Leaf Desert, flute
 #define GAMEFLAG_VIDEO_FLUTE2 205
@@ -57,7 +57,10 @@
 #define GAMEFLAG_VIDEO_NEIGE2 207
 // Hamalayi Mountains, ski lift
 #define GAMEFLAG_VIDEO_SURF 208
-// Ferry #2
+// Twinsen is no longer sick after he bought the catamaran
+// you get this video if you take the ferry after you've
+// bought the catamaran
+// Ferry #2 Citadel Island <-> Principal Island
 #define GAMEFLAG_VIDEO_BATEAU2 209
 // Fortress, Zoe Clone
 #define GAMEFLAG_VIDEO_CAPTURE 210
@@ -287,38 +290,38 @@ enum class ControlMode {
 
 enum class AnimationTypes {
 	kAnimNone = -1,
-	kStanding = 0,  // GEN_ANIM_RIEN
-	kForward = 1,   // GEN_ANIM_MARCHE
-	kBackward = 2,  // GEN_ANIM_RECULE
-	kTurnLeft = 3,  // GEN_ANIM_GAUCHE
-	kTurnRight = 4, // GEN_ANIM_DROITE
-	kHit = 5,
-	kBigHit = 6,
-	kFall = 7,
-	kLanding = 8,
-	kLandingHit = 9,
-	kLandDeath = 10,
-	kAction = 11,
-	kClimbLadder = 12,
-	kTopLadder = 13,
-	kJump = 14,
-	kThrowBall = 15,
-	kHide = 16,
-	kKick = 17,
-	kRightPunch = 18,
-	kLeftPunch = 19,
-	kFoundItem = 20,
-	kDrawn = 21,
-	kHit2 = 22,
-	kSabreAttack = 23,
-	kPush = 27, // GEN_ANIM_POUSSE
-	kSabreUnknown = 24,
+	kStanding = 0,      // GEN_ANIM_RIEN
+	kForward = 1,       // GEN_ANIM_MARCHE
+	kBackward = 2,      // GEN_ANIM_RECULE
+	kTurnLeft = 3,      // GEN_ANIM_GAUCHE
+	kTurnRight = 4,     // GEN_ANIM_DROITE
+	kHit = 5,           // GEN_ANIM_ENCAISSE
+	kBigHit = 6,        // GEN_ANIM_CHOC
+	kFall = 7,          // GEN_ANIM_TOMBE
+	kLanding = 8,       // GEN_ANIM_RECEPTION
+	kLandingHit = 9,    // GEN_ANIM_RECEPTION_2
+	kLandDeath = 10,    // GEN_ANIM_MORT
+	kAction = 11,       // GEN_ANIM_ACTION
+	kClimbLadder = 12,  // GEN_ANIM_MONTE
+	kTopLadder = 13,    // GEN_ANIM_ECHELLE
+	kJump = 14,         // GEN_ANIM_SAUTE
+	kThrowBall = 15,    // GEN_ANIM_LANCE
+	kHide = 16,         // GEN_ANIM_CACHE
+	kKick = 17,         // GEN_ANIM_COUP_1
+	kRightPunch = 18,   // GEN_ANIM_COUP_2
+	kLeftPunch = 19,    // GEN_ANIM_COUP_3
+	kFoundItem = 20,    // GEN_ANIM_TROUVE
+	kDrawn = 21,        // GEN_ANIM_NOYADE
+	kHit2 = 22,         // GEN_ANIM_CHOC2
+	kSabreAttack = 23,  // GEN_ANIM_SABRE
+	kSabreUnknown = 24, // GEN_ANIM_DEGAINE
+	kPush = 27,         // GEN_ANIM_POUSSE
 	kCarStarting = 303,
 	kCarDriving = 304,
 	kCarDrivingBackwards = 305,
 	kCarStopping = 306,
 	kCarFrozen = 307,
-	kAnimInvalid = 255
+	kNoAnim = 255 // NO_ANIM
 };
 
 enum class AnimType {
@@ -420,7 +423,8 @@ enum class ZoneType {
 	// lba2
 	kEscalator = 7,
 	kHit = 8,
-	kRail = 9
+	kRail = 9,
+	kFunFrockFix = 50
 };
 
 #define SCENE_CEILING_GRID_FADE_1 (-1)
@@ -648,7 +652,7 @@ enum class TextId : int16 {
 
 enum InventoryItems {
 	kiHolomap = 0,             // lba1/lba2
-	kiMagicBall = 1,           // lba1/lba2
+	kiMagicBall = 1,           // lba1/lba2 FLAG_BALLE_MAGIQUE
 	kiUseSabre = 2,            // lba1
 	kiDart = 2,                // lba2
 	kiGawleysHorn = 3,         // lba1
@@ -801,17 +805,17 @@ inline constexpr T bits(T value, uint8 offset, uint8 bits) {
 #define COLOR_158 158
 
 enum kDebugLevels {
-	kDebugScriptsMove = 1 << 0,
-	kDebugScriptsLife = 1 << 1,
-	kDebugTimers = 1 << 2,
-	kDebugResources = 1 << 3,
-	kDebugImGui = 1 << 4,
-	kDebugInput = 1 << 5,
-	kDebugMovies = 1 << 6,
-	kDebugPalette = 1 << 7,
-	kDebugCollision = 1 << 8,
-	kDebugAnimation = 1 << 9,
-	kDebugHolomap = 1 << 10
+	kDebugScriptsMove = 1,
+	kDebugScriptsLife,
+	kDebugTimers,
+	kDebugResources,
+	kDebugImGui,
+	kDebugInput,
+	kDebugMovies,
+	kDebugPalette,
+	kDebugCollision,
+	kDebugAnimation,
+	kDebugHolomap,
 };
 
 } // namespace TwinE

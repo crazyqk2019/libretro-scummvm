@@ -26,6 +26,17 @@
 
 namespace Director {
 
+class QtvrxtraXtraObject;
+
+class QtvrxtraWidget : public Graphics::MacWidget {
+public:
+	QtvrxtraWidget(QtvrxtraXtraObject *xtra, Graphics::MacWidget *parent, int x, int y, int w, int h, Graphics::MacWindowManager *wm);
+
+	virtual bool processEvent(Common::Event &event);
+
+	QtvrxtraXtraObject *_xtra;
+};
+
 class QtvrxtraXtraObject : public Object<QtvrxtraXtraObject> {
 public:
 	QtvrxtraXtraObject(ObjectType objType);
@@ -33,27 +44,21 @@ public:
 	bool hasProp(const Common::String &propName) override;
 	Datum getProp(const Common::String &propName) override;
 
-	bool processEvent(Common::Event &event);
-
 	Video::QuickTimeDecoder *_video;
+	QtvrxtraWidget *_widget;
 
 	Common::Rect _rect;
 	bool _visible;
-	float _quality;
-
-	Video::QuickTimeDecoder::NodeData _currentNode;
-
-	Common::String _transitionMode;
-	float _transitionSpeed;
-
-	Common::String _updateMode;
-
-	bool _capEventsMouseOver;
-	bool _capEventsMouseDown;
 
 	bool _passMouseDown;
+	bool _exitMouseOver = false;
 
+	Common::String _rolloverHotSpotHandler;
 	Common::String _mouseDownHandler;
+	Common::String _mouseOverHandler;
+	Common::String _mouseStillDownHandler;
+	Common::String _panZoomStartHandler;
+	Common::String _nodeLeaveHandler;
 };
 
 namespace QtvrxtraXtra {

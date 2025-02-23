@@ -38,7 +38,7 @@ extern void setGlobals1(int series, int val2, int val3, int val4, int val5,
 extern void setGlobals3(int series, int val1, int val2);
 extern void setGlobals4(int series, int val2, int val3, int val4);
 
-extern void sendWSMessage_10000(int val1, machine *mach, int val2, int val3,
+extern void sendWSMessage_10000(int val1, machine *mach, int series1, int val3,
 	int val4, int trigger, int series2, int val6, int val7, int val8);
 extern void sendWSMessage_10000(machine *mach, int destX, int destY, int facing,
 	int trigger, int complete_walk);
@@ -49,13 +49,9 @@ machine *triggerMachineByHash_3000(int myHash, int dataHash,
 extern void sendWSMessage_60000(machine *mach);
 extern void sendWSMessage_80000(machine *mach);
 extern void sendWSMessage_B0000(machine *mach, int trigger);
-extern void sendWSMessage_B0000(int trigger);
 extern void sendWSMessage_C0000(machine *mach, int trigger);
-extern void sendWSMessage_C0000(int trigger);
 extern void sendWSMessage_D0000(machine *mach);
-extern void sendWSMessage_D0000();
 extern void sendWSMessage_E0000(machine *mach);
-extern void sendWSMessage_E0000();
 extern void sendWSMessage_F0000(machine *mach, int trigger);
 extern void sendWSMessage_F0000(int trigger);
 extern void sendWSMessage_110000(machine *mach, int trigger);

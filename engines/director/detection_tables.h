@@ -401,6 +401,7 @@ static const PlainGameDescriptor directorGames[] = {
 	{ "pingu2",				"Pingu and Friends" },
 	{ "pippi",				"Astrid Lindgren's Pippi" },
 	{ "planetarizona",		"Escape from Planet Arizona" },
+	{ "plates",				"Plates are People Too!" },
 	{ "playroom",			"The Playroom" },
 	{ "plbible",			"The Play & Learn Children's Bible On CD-ROM" },
 	{ "poohac",				"Winnie the Pooh Activity Center" },
@@ -818,6 +819,7 @@ static const PlainGameDescriptor directorGames[] = {
 	{ "seinfeldondvd",		"Seinfeld on DVD" },
 	{ "sensei",				"Sensei" },
 	{ "simpsontrivia",		"The Simpsons Trivia" },
+	{ "smartstart",			"CIBC SmartStart" },
 	{ "smile",				"SMILE! The Splattering" },
 	{ "sorgato",			"Sylvain Sorgato's Drawings in variable color" },
 	{ "spitwad",			"High School High Spitwad Game" },
@@ -1109,6 +1111,7 @@ static const PlainGameDescriptor directorGames[] = {
 	{ "intro1",				"INTRO No. 1 1994" },
 	{ "intro2",				"INTRO No. 2 1994" },
 	{ "intro4",				"INTRO No. 4" },
+	{ "intro6",				"INTRO No. 6" },
 	{ "jinkakuzukan",		"人格図鑑" }, // Personality Profile
 	{ "junglepark",			"Jungle Park" },
 	{ "jyajya",				"Jya jya" },										// HyperCard with D3 movie
@@ -4628,6 +4631,11 @@ static const DirectorGameDescription gameDescriptions[] = {
 	WINGAME2t_l("intro4", "", "INTRO_04.EXE", "192f16367c1d249beff3d416f1e99c6c", 2221741,
 							  "INTRO.DIR", 	  "1917276c6c3af2efdb740a36903ae7e7", 2063096, Common::JA_JPN, 404),
 
+	MACGAME2_l("intro6", "", "Intro_06",  "r:f5033f237ad1b1639fc46d01a82ac380", 286124,
+							 "MAIN_IF.DIR", "d:682629a2c1fdd55250788cc5faa930a8", 548036, Common::JA_JPN, 404),
+	WINGAME2t_l("intro6", "", "INTRO_06.EXE", "d7f2b292aa9e70cc92a95916ac41b3a5", 1077367,
+							  "MAIN_IF.DIR", 	  "3830502a30c8361d707771ea9b68eec0", 548036, Common::JA_JPN, 404),
+
 	// Original filename is チュートリアル
 	MACDEMO1_l("inposition", "Tutorial", "Tutorial", "r:77f4098988d5386794d1530065f514cd", 305277, Common::JA_JPN, 400),
 
@@ -5540,6 +5548,8 @@ static const DirectorGameDescription gameDescriptions[] = {
 	WINDEMO2("planetearth", "Demo", "PLANETE.EXE",	"t:1ab2d4f204eb42c9a8ff5257f7cef149", 690069,
 									"INTRO.DIR",	"f:44456604551f5670f801fc69cbbe5833", 10175740, 404),
 
+	MACGAME1("plates", "", "xn--        Plates        -/Plates Are People Too!", "r:bcd068aaac1177eab7125ea39f66e86f", 483518, 400),
+
 	// Found on the Play-Doh Creations CD
 	MACGAME1("playskool", "", "goHIGmem PPC", "r:a6043fbba9186296faf8a2b82e5e4182",    64250, 404),
 	WINGAME2("playskool", "", "SAMPLER.EXE",  "t:4de224099dd6f16d5c9892f94c975f2a",   696951,
@@ -5959,9 +5969,10 @@ static const DirectorGameDescription gameDescriptions[] = {
 	WINGAME1("ubt", "", "BTDEMO.EXE", "dbe72b7dc91c72db5b4597857aecf5c6", 696813, 404),
 
 	// YOBI.EXE is a projector for lower performance systems
-	WINGAME1_l("ukiuki1", "",	  "TENNGU.EXE", "f0bbb9938a7cb899b6fc93ef7f3e8150", 747145, Common::JA_JPN, 404),
+	WINGAME1_l("ukiuki1", "",	  "TENNGU.EXE", "t:2bfc6908e01ec3e743189daa7578d30a", 747145, Common::JA_JPN, 404),
 	WINDEMO2_l("ukiuki1", "Demo", "S.EXE",		"09430e02b3540e623d0b400792958901", 747145,
 								  "LOGO.DIR",	"b6d341c63fbea25898fc310981413c28", 1053528, Common::JA_JPN, 404),
+	MACGAME1_l("ukiuki1", "",     "xn--u9j393jyrduwqoth", "r:bcd3c718db258701496b3c5bcb827ef2", 488662, Common::JA_JPN, 404),
 	WINGAME1("ukiukibgv", "",	  "BGV",		"4dc07ac998272bb4027a9979f5b6c3b6", 1097649, 404),
 	{
 		{
@@ -6742,14 +6753,14 @@ static const DirectorGameDescription gameDescriptions[] = {
 	// Other versions are D3
 	PIPGAME1("gadget", "", "GADGET", "d7e907d3933869f055ae59774c87f501", 111000, 501),
 
-	MACGAME1("gadgetpaf",	"",		 "GADGET -Past as Future- (Disc1)", "3b96e0a903130cf68e6f8362bb4d096c", 178907, 501),
-	MACGAME1_l("gadgetpaf", "",		 "GADGET -Past as Future- (Disc1)", "4b2213a9fb04f390ec074c54b916370d", 113169, Common::JA_JPN, 501),
-	WINGAME2("gadgetpaf",	"",		 "GADGET/GADGET.EXE", "t:c8a85e9a0eda2b7dd7974197c02d6469", 1411507,
-									 "DATA/TEXT_E.Cxt", "f:e74119685db701dea9f31f91521fd078", 2457643, 501),
-	WINGAME2("gadgetpaf",	"",		 "GADGET/GADGET.EXE", "1a7acbba10a7246ba58c1d53fc7203f5", 1411507,
-									 "DATA/TEXT_E.Cxt", "5f14330705974a22deb9a12cd8ae6e79", 691046, 501),
-	WINGAME2_l("gadgetpaf", "",		 "GADGET/GADGET.EXE", "1a7acbba10a7246ba58c1d53fc7203f5", 1411507,
-									 "DATA/TEXT_E.Cxt", "056ab5419f65fab51fa50c28ad360e76", 561824, Common::ES_ESP, 501),
+	MACGAME1f("gadgetpaf",	"",		 "GADGET -Past as Future- (Disc1)", "3b96e0a903130cf68e6f8362bb4d096c", 178907, 501, GF_32BPP),
+	MACGAME1f_l("gadgetpaf", "",		 "GADGET -Past as Future- (Disc1)", "4b2213a9fb04f390ec074c54b916370d", 113169, Common::JA_JPN, 501, GF_32BPP),
+	WINGAME2f("gadgetpaf",	"",		 "GADGET/GADGET.EXE", "t:c8a85e9a0eda2b7dd7974197c02d6469", 1411507,
+									 "DATA/TEXT_E.Cxt", "f:e74119685db701dea9f31f91521fd078", 2457643, 501, GF_32BPP),
+	WINGAME2f("gadgetpaf",	"",		 "GADGET/GADGET.EXE", "1a7acbba10a7246ba58c1d53fc7203f5", 1411507,
+									 "DATA/TEXT_E.Cxt", "5f14330705974a22deb9a12cd8ae6e79", 691046, 501, GF_32BPP),
+	WINGAME2f_l("gadgetpaf", "",		 "GADGET/GADGET.EXE", "1a7acbba10a7246ba58c1d53fc7203f5", 1411507,
+									 "DATA/TEXT_E.Cxt", "056ab5419f65fab51fa50c28ad360e76", 561824, Common::ES_ESP, 501, GF_32BPP),
 	WINDEMO2f_l("gadgetpaf", "Demo", "GADGET.exe", "t:7e393434e06153a6413baf1b448f440e", 1647502,
 									 "TEXT_E.Cxt", "h:f2efb64dc4e3e1ea705309426fff7824", 152776, Common::ES_ESP, 501, GF_32BPP),
 
@@ -7529,6 +7540,8 @@ static const DirectorGameDescription gameDescriptions[] = {
 	WINDEMO2t_l("smallhouse", "Demo 2", "DEMOSH.EXE",    "73246839eb7cc3acaf10e67b837a32c1", 1411908,
 								 "S_DEMO/OPEN/MAIN.Dxr", "29c1134c7ffe2e7f1d3fc271443405ea", 361806, Common::JA_JPN, 501),
 
+	WINGAME1("smartstart", "", "SSTART.EXE", "t:2c0ba688150dafd663749f0ac6634810", 933967, 501),
+
 	MACGAME1("smarty", "", "Smarty.PPC", "559818fe064f608c69bf86d4c60dee93", 107863, 501),
 	MACGAME2("smarty", "Uplink rerelease", "MacPPC",			"r:d2531c0b8c0553be7c7cd5f6c6a07b78",  107863,
 										   "spStuff/Acres.dxr", "d:91b6ca83c64c64f48c864fa56d6344a4", 2719234, 501),
@@ -7697,6 +7710,8 @@ static const DirectorGameDescription gameDescriptions[] = {
 	MACGAME1("wine", "", "double-click me!", "231d3041df162be4a0ddd36a74eb03b6", 719289, 501),
 	WINGAME2("wine", "", "WIN95.EXE",		 "1a7acbba10a7246ba58c1d53fc7203f5", 1411337,
 						 "160MAIN.DXR",		 "23dbb4744121b077d331b01123709519", 592640, 501),
+
+	WINGAME1_l("winniewitch", "", "ZILLY.EXE", "t:f302a23d9172f018edcd4c46345c40c1", 935225, Common::DE_DEU, 501),
 
 	// Created by Human Code, Inc.
 	// Doesn't require installation
@@ -8234,6 +8249,10 @@ static const DirectorGameDescription gameDescriptions[] = {
 							 "MEDIA/DATA/BAUWAGEN.DXR", "d:56702894e84d310c5b7548b689953fbd",  8361884, Common::DE_DEU, 602),
 	WINGAME2_l("loewe2", "", "MEDIA/WIN95.exe",			"t:f808f4b3d526367fa8a1e32bf463dd64",  1512856,
 							 "MEDIA/DATA/BAUWAGEN.DXR", "f:56702894e84d310c5b7548b689953fbd",  8361884, Common::DE_DEU, 602),
+	// Version 2.0 adds networking features
+	MACGAME1_l("loewe2", "v2.0",		"MEDIA/xn--Lwenzahn 2-ecb", "rt:282d2d4d2959fbf698b2cdf238c7d588", 1033198, Common::DE_DEU, 602),
+	WINGAME1_l("loewe2", "v2.0 Win3.1", "SETUP/WIN31/LZ2_31.EXE",	"t:f6ad85eeb4b069357603379bc15a56a0",  1291107, Common::DE_DEU, 602),
+	WINGAME1_l("loewe2", "v2.0 Win95",  "SETUP/WIN95/LZ2_95.EXE",	"t:0772adacde0f8fa5a9767de25be13527",  1514451, Common::DE_DEU, 650),
 
 	// Original Mac filename is Löwenzahn 3
 	MACGAME1_l("loewe3", "", "xn--Lwenzahn 3-ecb",					"rt:e03c6cc5f2cdeef199f75c02928edafe", 1032378, Common::DE_DEU, 602),
