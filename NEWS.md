@@ -6,6 +6,7 @@ For a more comprehensive changelog of the latest experimental code, see:
  New games:
    - Added support for Dark Seed.
    - Added support for God of Thunder.
+   - Added support for The Adventures of Willy Beamish.
 
  Hopkins:
    - Fix crash using elevator to go to other floors.
@@ -17,6 +18,7 @@ For a more comprehensive changelog of the latest experimental code, see:
    - Added support for the classic SE variants of MI1, MI2, DOTT and FT.
    - Added support for the remastered speech and sound effects in the
      remastered version of Day of the Tentacle.
+   - Added speech support in the SE versions of MI1 and MI2.
    - Improved graphics support for Macintosh DOTT, Sam & Max, The Dig, Full
      Throttle, and Maniac Mansion.
    - Fixed pops in Sega CD MI1 sound effects.

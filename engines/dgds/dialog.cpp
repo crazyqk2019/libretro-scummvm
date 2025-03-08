@@ -87,16 +87,26 @@ void Dialog::drawType1(Graphics::ManagedSurface *dst, DialogDrawStage stage) {
 	int w = _rect.width;
 	int h = _rect.height;
 
+	DgdsEngine *engine = DgdsEngine::getInstance();
 	if (stage == kDlgDrawStageBackground) {
-		dst->fillRect(Common::Rect(x, y, x + w, y + h), _bgColor);
-		dst->fillRect(Common::Rect(x + 1, y + 1, x + w - 1, y + h - 1), _fontColor);
+		dst->frameRect(Common::Rect(x, y, x + w, y + h), _bgColor);
+		if (engine->getGameId() != GID_WILLY) {
+			dst->fillRect(Common::Rect(x + 1, y + 1, x + w - 1, y + h - 1), _fontColor);
+		} else {
+			dst->frameRect(Common::Rect(x + 1, y + 1, x + w - 1, y + h - 1), _fontColor);
+			dst->fillRect(Common::Rect(x + 2, y + 2, x + w - 2, y + h - 2), _bgColor);
+		}
 	} else if (stage == kDlgDrawFindSelectionPointXY) {
 		drawFindSelectionXY();
 	} else if (stage == kDlgDrawFindSelectionTxtOffset) {
 		drawFindSelectionTxtOffset();
 	} else {
-		_state->_loc = DgdsRect(x + 3, y + 3, w - 6, h - 6);
-		drawForeground(dst, _bgColor, _str);
+		if (engine->getGameId() != GID_WILLY)
+			_state->_loc = DgdsRect(x + 3, y + 3, w - 6, h - 6);
+		else
+			_state->_loc = DgdsRect(x + 5, y + 5, w - 10, h - 10);
+		byte txtCol = (engine->getGameId() == GID_WILLY) ? _fontColor : _bgColor;
+		drawForeground(dst, txtCol, _str);
 	}
 }
 
@@ -127,16 +137,15 @@ void Dialog::drawType2BackgroundDragon(Graphics::ManagedSurface *dst, const Comm
 }
 
 void Dialog::drawType2BackgroundChina(Graphics::ManagedSurface *dst, const Common::String &title) {
-	_state->_loc = DgdsRect(_rect.x + 12, _rect.y + 10, _rect.width - 24, _rect.height - 20);
 	if (title.empty()) {
+		_state->_loc = DgdsRect(_rect.x + 10, _rect.y + 10, _rect.width - 20, _rect.height - 20);
 		RequestData::fillBackground(dst, _rect.x, _rect.y, _rect.width, _rect.height, 0);
 		RequestData::drawCorners(dst, 1, _rect.x, _rect.y, _rect.width, _rect.height);
 	} else {
+		// This is 1 more pixel down than the original, but seems to be needed to get the right spot?
+		_state->_loc = DgdsRect(_rect.x + 6, _rect.y + 17, _rect.width - 12, _rect.height - 24);
 		dst->fillRect(Common::Rect(Common::Point(_rect.x, _rect.y), _rect.width, _rect.height), 0);
 		RequestData::drawCorners(dst, 11, _rect.x, _rect.y, _rect.width, _rect.height);
-		// TODO: Maybe should measure the font?
-		_state->_loc.y += 11;
-		_state->_loc.height -= 11;
 		RequestData::drawHeader(dst, _rect.x, _rect.y, _rect.width, 2, title, _fontColor, false, 0, 0);
 	}
 }
@@ -346,11 +355,13 @@ void Dialog::drawType4(Graphics::ManagedSurface *dst, DialogDrawStage stage) {
 		fillbgcolor = _bgColor;
 	}
 
+	const DgdsGameId gameId = DgdsEngine::getInstance()->getGameId();
 	if (stage == kDlgDrawStageBackground) {
 		//int radius = (midy * 5) / 4;
 
 		// This is not exactly the same as the original - might need some work to get pixel-perfect
-		if (DgdsEngine::getInstance()->getGameId() != GID_HOC) {
+		// Beamish uses 20x20 dialogs of type 4 to have effects without actually drawing anything.
+		if (gameId != GID_HOC && (w > 22 || h > 22)) {
 			Common::Rect drawRect(x, y, x + w, y + h);
 			dst->drawRoundRect(drawRect, midy, fillbgcolor, true);
 			dst->drawRoundRect(drawRect, midy, fillcolor, false);
@@ -361,12 +372,17 @@ void Dialog::drawType4(Graphics::ManagedSurface *dst, DialogDrawStage stage) {
 		drawFindSelectionTxtOffset();
 	} else {
 		assert(_state);
-		if (DgdsEngine::getInstance()->getGameId() != GID_HOC) {
+		if (gameId != GID_HOC) {
 			_state->_loc = DgdsRect(x + midy, y + 1, w - midy, h - 1);
 		} else {
 			_state->_loc = DgdsRect(x, y, w, h);
 			fillcolor = 25; // ignore the color??
 		}
+
+		// WORKAROUND for the Willy Beamish dialogs which are 20x20 - these should not be drawn
+		if (gameId == GID_WILLY && (w <= 22 && h <= 22))
+			return;
+
 		drawForeground(dst, fillcolor, _str);
 	}
 }

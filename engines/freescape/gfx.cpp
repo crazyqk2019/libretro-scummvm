@@ -26,7 +26,7 @@
 #include "engines/util.h"
 
 #if defined(USE_OPENGL_GAME) || defined(USE_OPENGL_SHADERS) || defined(USE_GLES2)
-#include "graphics/opengl/context.h"
+	#include "graphics/opengl/context.h"
 #endif
 
 #include "freescape/gfx.h"
@@ -36,9 +36,9 @@ namespace Freescape {
 
 const Graphics::PixelFormat getRGBAPixelFormat() {
 #ifdef SCUMM_BIG_ENDIAN
-		return Graphics::PixelFormat(4, 8, 8, 8, 8, 24, 16, 8, 0);
+	return Graphics::PixelFormat(4, 8, 8, 8, 8, 24, 16, 8, 0);
 #else
-		return Graphics::PixelFormat(4, 8, 8, 8, 8, 0, 8, 16, 24);
+	return Graphics::PixelFormat(4, 8, 8, 8, 8, 0, 8, 16, 24);
 #endif
 }
 
@@ -137,19 +137,19 @@ byte getCGAStipple(byte x, int back, int fore) {
 		st = st | (0x3 << 4);
 
 	if (c3 == fore)
-		st = st |  (0x3 << 6);
+		st = st | (0x3 << 6);
 
 	return st;
 }
 
 byte getC64Stipple(byte x, int back, int fore) {
-	int c0 = getC64Pixel(x, 0);
+	int c0 = x & 1 ? fore : back; //getC64Pixel(x, 0);
 	assert(c0 == back || c0 == fore || back == fore);
-	int c1 = getC64Pixel(x, 1);
+	int c1 = (x >> 1) & 1 ? fore : back; //getC64Pixel(x, 1);
 	assert(c1 == back || c1 == fore || back == fore);
-	int c2 = getC64Pixel(x, 2);
+	int c2 = (x >> 2) & 1 ? fore : back; //getC64Pixel(x, 2);
 	assert(c2 == back || c2 == fore || back == fore);
-	int c3 = getC64Pixel(x, 3);
+	int c3 = (x >> 3) & 1 ? fore : back; //getC64Pixel(x, 3);
 	assert(c3 == back || c3 == fore || back == fore);
 
 	byte st = 0;
@@ -163,7 +163,7 @@ byte getC64Stipple(byte x, int back, int fore) {
 		st = st | (0x3 << 4);
 
 	if (c3 == fore)
-		st = st |  (0x3 << 6);
+		st = st | (0x3 << 6);
 
 	return st;
 }
@@ -173,43 +173,107 @@ void Renderer::clearColorPairArray() {
 		_colorPair[i] = 0;
 }
 
+int getC64Color(uint8 index, bool isBackground) {
+	if (index < 4)
+		return index;
+
+	if (isBackground) {
+		switch (index) {
+		case 4:
+			return 1;
+		case 5: // OK
+			return 2;
+		case 6: // OK
+			return 0;
+		case 7: // OK
+			return 1;
+		case 8:
+			return 1; // ??
+		case 9:  // OK
+			return 3;
+		case 10: // ??
+			return 0;
+		case 11:
+			return 0;
+		case 12:
+			return 0;
+		case 13: // OK
+			return 3;
+		case 14:
+			return 0;
+		default:
+			error("invalid c64 color index %d", index);
+		}
+	}
+
+	switch (index) {
+	case 4:
+		return 0;
+	case 5: // OK
+		return 0;
+	case 6: // OK
+		return 3;
+	case 7: // OK
+		return 2;
+	case 8:
+		return 3; // ??
+	case 9: // OK
+		return 2;
+	case 10: // ??
+		return 0;
+	case 11:
+		return 0;
+	case 12:
+		return 0;
+	case 13:
+		return 2;
+	case 14:
+		return 0;
+	default:
+		error("invalid c64 color index %d", index);
+	}
+
+	error("unreachable");
+}
+
 void Renderer::fillColorPairArray() {
 	for (int i = 0; i < 15; i++) {
 		byte *entry = (*_colorMap)[i];
-		int c1;
+		int c1 = -1;
+		int c2 = -1;
 		if (_renderMode == Common::kRenderCGA)
 			c1 = getCGAPixel(entry[0], 0);
 		else if (_renderMode == Common::kRenderCPC)
 			c1 = getCPCPixel(entry[0], 0, true);
-		else if (_renderMode == Common::kRenderC64)
-			c1 = getC64Pixel(entry[0], 0);
-		else
+		else if (_renderMode == Common::kRenderC64) {
+			c1 = getC64Color(i, false);
+			c2 = getC64Color(i, true);
+		} else
 			error("Not implemented");
 
-		int c2 = -1;
-
-		for (int j = 0; j < 4; j++) {
-			int k, c;
-			for (k = 0; k < 4; k++) {
-				if (_renderMode == Common::kRenderCGA)
-					c = getCGAPixel(entry[j], k);
-				else if (_renderMode == Common::kRenderCPC)
-					c = getCPCPixel(entry[j], k, true);
-				else if (_renderMode == Common::kRenderC64)
-					c = getC64Pixel(entry[j], k);
-				else
-					error("Not implemented");
-				if (c1 != c) {
-					c2 = c;
-					break;
+		if (_renderMode != Common::kRenderC64) {
+			for (int j = 0; j < 4  && c2 == -1; j++) {
+				int k, c;
+				for (k = 0; k < 4; k++) {
+					if (_renderMode == Common::kRenderCGA)
+						c = getCGAPixel(entry[j], k);
+					else if (_renderMode == Common::kRenderCPC)
+						c = getCPCPixel(entry[j], k, true);
+					else
+						error("Not implemented");
+					if (c1 != c) {
+						c2 = c;
+						break;
+					}
 				}
+				if (k != 4)
+					break;
 			}
-			if (k != 4)
-				break;
+			// The Castle Master CPC release needs the following workaround
+			if (c2 < 0)
+				c2 = c1;
+
 		}
-		// The Castle Master CPC release needs the following workaround
-		if (c2 < 0)
-			c2 = c1;
 		assert((c1 < 16) & (c2 < 16));
 		_colorPair[i] = byte(c1) | (byte(c2) << 4);
 	}
@@ -217,26 +281,26 @@ void Renderer::fillColorPairArray() {
 
 
 uint16 duplicate_bits(uint8 byte) {
-    uint16 result = 0;
+	uint16 result = 0;
 
-    for (int i = 0; i < 8; i++) {
-        // Extract the bit at position i
-        uint8 bit = (byte >> i) & 1;
-        // Duplicate the bit
-        uint16 duplicated_bits = (bit << 1) | bit;
-        // Position the duplicated bits in the appropriate place in the result
-        result |= (duplicated_bits << (2 * i));
-    }
+	for (int i = 0; i < 8; i++) {
+		// Extract the bit at position i
+		uint8 bit = (byte >> i) & 1;
+		// Duplicate the bit
+		uint16 duplicated_bits = (bit << 1) | bit;
+		// Position the duplicated bits in the appropriate place in the result
+		result |= (duplicated_bits << (2 * i));
+	}
 
-    return result;
+	return result;
 }
 
 
 void Renderer::scaleStipplePattern(byte originalPattern[128], byte newPattern[128]) {
-    // Initialize the new pattern to all 0
-    memset(newPattern, 0, 128);
+	// Initialize the new pattern to all 0
+	memset(newPattern, 0, 128);
 
-    for (int i = 0; i < 64; i++) {
+	for (int i = 0; i < 64; i++) {
 		// Duplicate the bits of the original pattern
 		uint16 duplicated_bits = duplicate_bits(originalPattern[i]);
 		// Position the duplicated bits in the appropriate place in the new pattern
@@ -329,7 +393,7 @@ bool Renderer::getRGBAtCGA(uint8 index, uint8 &r1, uint8 &g1, uint8 &b1, uint8 &
 	if (index == _keyColor)
 		return false;
 
-	assert (_renderMode == Common::kRenderCGA);
+	assert(_renderMode == Common::kRenderCGA);
 	stipple = (byte *)_stipples[index - 1];
 	byte pair = _colorPair[index - 1];
 	byte c1 = pair & 0xf;
@@ -340,46 +404,6 @@ bool Renderer::getRGBAtCGA(uint8 index, uint8 &r1, uint8 &g1, uint8 &b1, uint8 &
 		stipple = nullptr;
 	}
 	return true;
-}
-
-void Renderer::extractC64Indexes(uint8 cm1, uint8 cm2, uint8 &i1, uint8 &i2) {
-	if (cm1 == 0x00 && cm2 == 0x00) {
-		i1 = 0;
-		i2 = 0;
-	} else if (cm1 == 0xf0 && cm2 == 0xf0) {
-		i1 = 1;
-		i2 = 1;
-	} else if (cm1 == 0x0f && cm2 == 0x0f) {
-		i1 = 2;
-		i2 = 2;
-	} else if (cm1 == 0xff && cm2 == 0xff) {
-		i1 = 3;
-		i2 = 3;
-	} else if (cm1 == 0xaa && cm2 == 0x55) {
-		i1 = 3;
-		i2 = 1;
-	} else if (cm1 == 0x05 && cm2 == 0x0a) { // Y?
-		i1 = 1;
-		i2 = 0;
-	} else if (cm1 == 0xf5 && cm2 == 0xfa) { // Y
-		i1 = 3;
-		i2 = 2;
-	} else if (cm1 == 0x50 && cm2 == 0xa0) {
-		i1 = 2;
-		i2 = 0;
-	} else if (cm1 == 0x5f && cm2 == 0xaf) { // Y ?
-		i1 = 1;
-		i2 = 3;
-	} else if (cm1 == 0x5a && cm2 == 0xa5) { // Y?
-		i1 = 1;
-		i2 = 2;
-	} else if (cm1 == 0x55 && cm2 == 0xaa) { // ??
-		i1 = 0;
-		i2 = 0;
-	} else {
-		i1 = 2;
-		i2 = 2;
-	}
 }
 
 bool Renderer::getRGBAtC64(uint8 index, uint8 &r1, uint8 &g1, uint8 &b1, uint8 &r2, uint8 &g2, uint8 &b2, byte *&stipple) {
@@ -403,20 +427,18 @@ bool Renderer::getRGBAtC64(uint8 index, uint8 &r1, uint8 &g1, uint8 &b1, uint8 &
 		stipple = nullptr;
 		return true;
 	}
-	assert (_renderMode == Common::kRenderC64);
+	assert(_renderMode == Common::kRenderC64);
 	uint8 i1, i2;
 	stipple = (byte *)_stipples[index - 1];
-	byte *entry = (*_colorMap)[index - 1];
-	uint8 cm1 = *(entry);
-	entry++;
-	uint8 cm2 = *(entry);
-	extractC64Indexes(cm1, cm2, i1, i2);
+
+	byte pair = _colorPair[index - 1];
+	i1 = pair & 0xf;
+	i2 = (pair >> 4) & 0xf;
+
 	selectColorFromFourColorPalette(i1, r1, g1, b1);
 	selectColorFromFourColorPalette(i2, r2, g2, b2);
-	if (r1 == r2 && g1 == g2 && b1 == b2) {
+	if (r1 == r2 && g1 == g2 && b1 == b2)
 		stipple = nullptr;
-	} else
-		stipple = nullptr; // TODO: custom stipple support
 	return true;
 }
 
@@ -509,7 +531,7 @@ bool Renderer::getRGBAtCPC(uint8 index, uint8 &r1, uint8 &g1, uint8 &b1, uint8 &
 		stipple = nullptr;
 		return true;
 	}
-	assert (_renderMode == Common::kRenderCPC);
+	assert(_renderMode == Common::kRenderCPC);
 	stipple = (byte *)_stipples[index - 1];
 	byte *entry = (*_colorMap)[index - 1];
 	uint8 i1 = getCPCPixel(entry[0], 0, true);
@@ -528,7 +550,7 @@ uint8 Renderer::mapEGAColor(uint8 index) {
 	uint8 acc = 1;
 	for (int i = 0; i < 4; i++) {
 		byte be = *entry;
-		assert (be == 0 || be == 0xff);
+		assert(be == 0 || be == 0xff);
 		if (be == 0xff)
 			color = color + acc;
 
@@ -647,17 +669,17 @@ bool Renderer::computeScreenViewport() {
 
 	Common::Rect viewport;
 	if (g_system->getFeatureState(OSystem::kFeatureAspectRatioCorrection)) {
-			// Aspect ratio correction
-			int32 viewportWidth = MIN<int32>(screenWidth, screenHeight * float(4) / 3);
-			int32 viewportHeight = MIN<int32>(screenHeight, screenWidth * float(3) / 3);
-			viewport = Common::Rect(viewportWidth, viewportHeight);
+		// Aspect ratio correction
+		int32 viewportWidth = MIN<int32>(screenWidth, screenHeight * float(4) / 3);
+		int32 viewportHeight = MIN<int32>(screenHeight, screenWidth * float(3) / 3);
+		viewport = Common::Rect(viewportWidth, viewportHeight);
 
-			// Pillarboxing
-			viewport.translate((screenWidth - viewportWidth) / 2,
-				(screenHeight - viewportHeight) / 2);
+		// Pillarboxing
+		viewport.translate((screenWidth - viewportWidth) / 2,
+		                   (screenHeight - viewportHeight) / 2);
 	} else {
-			// Aspect ratio correction disabled, just stretch
-			viewport = Common::Rect(screenWidth, screenHeight);
+		// Aspect ratio correction disabled, just stretch
+		viewport = Common::Rect(screenWidth, screenHeight);
 	}
 
 	if (viewport == _screenViewport) {
@@ -1256,15 +1278,15 @@ Graphics::RendererType determinateRenderType() {
 	Graphics::RendererType desiredRendererType = Graphics::Renderer::parseTypeCode(rendererConfig);
 	Graphics::RendererType matchingRendererType = Graphics::Renderer::getBestMatchingAvailableType(desiredRendererType,
 #if defined(USE_OPENGL_GAME)
-						Graphics::kRendererTypeOpenGL |
+	    Graphics::kRendererTypeOpenGL |
 #endif
 #if defined(USE_OPENGL_SHADERS)
-			Graphics::kRendererTypeOpenGLShaders |
+	    Graphics::kRendererTypeOpenGLShaders |
 #endif
 #if defined(USE_TINYGL)
-						Graphics::kRendererTypeTinyGL |
+	    Graphics::kRendererTypeTinyGL |
 #endif
-						0);
+	    0);
 
 	if (matchingRendererType != desiredRendererType && desiredRendererType != Graphics::kRendererTypeDefault) {
 		// Display a warning if unable to use the desired renderer
@@ -1272,17 +1294,17 @@ Graphics::RendererType determinateRenderType() {
 	}
 
 	#if defined(USE_OPENGL_GAME) && !defined(USE_GLES2)
-		if (matchingRendererType == Graphics::kRendererTypeOpenGL)
-			return matchingRendererType;
+	if (matchingRendererType == Graphics::kRendererTypeOpenGL)
+		return matchingRendererType;
 	#endif
 
 	#if defined(USE_OPENGL_SHADERS)
-		if (matchingRendererType == Graphics::kRendererTypeOpenGLShaders)
-			return matchingRendererType;
+	if (matchingRendererType == Graphics::kRendererTypeOpenGLShaders)
+		return matchingRendererType;
 	#endif
 
 	#if defined(USE_TINYGL)
-		return Graphics::kRendererTypeTinyGL;
+	return Graphics::kRendererTypeTinyGL;
 	#endif
 
 	return Graphics::kRendererTypeDefault;
@@ -1301,15 +1323,15 @@ Renderer *createRenderer(int screenW, int screenH, Common::RenderMode renderMode
 	}
 
 	#if defined(USE_OPENGL_GAME) && !defined(USE_GLES2)
-		if (rendererType == Graphics::kRendererTypeOpenGL) {
-			return CreateGfxOpenGL(screenW, screenH, renderMode, authenticGraphics);
-		}
+	if (rendererType == Graphics::kRendererTypeOpenGL) {
+		return CreateGfxOpenGL(screenW, screenH, renderMode, authenticGraphics);
+	}
 	#endif
 
 	#if defined(USE_OPENGL_SHADERS)
-		if (rendererType == Graphics::kRendererTypeOpenGLShaders) {
-			return CreateGfxOpenGLShader(screenW, screenH, renderMode, authenticGraphics);
-		}
+	if (rendererType == Graphics::kRendererTypeOpenGLShaders) {
+		return CreateGfxOpenGLShader(screenW, screenH, renderMode, authenticGraphics);
+	}
 	#endif
 
 	#if defined(USE_TINYGL)

@@ -333,6 +333,9 @@ bool QuickTimeDecoder::setFOV(float fov) {
 	PanoSampleDesc *desc = (PanoSampleDesc *)_panoTrack->sampleDescs[0];
 	bool success = true;
 
+	if (fov == 0.0f) // No change
+		return true;
+
 	if (fov <= desc->_minimumZoom) {
 		fov = desc->_minimumZoom;
 		success = false;
@@ -369,7 +372,7 @@ void QuickTimeDecoder::updateAngles() {
 		_panAngle = (float)getCurrentColumn() / (float)_nav.columns * 360.0;
 		_tiltAngle = ((_nav.rows - 1) / 2.0 - (float)getCurrentRow()) / (float)(_nav.rows - 1) * 180.0;
 
-		debugC(1, kDebugLevelMacGUI, "QTVR: row: %d col: %d  (%d x %d) pan: %f tilt: %f", getCurrentRow(), getCurrentColumn(), _nav.rows, _nav.columns, getPanAngle(), getTiltAngle());
+		debugC(1, kDebugLevelGVideo, "QTVR: row: %d col: %d  (%d x %d) pan: %f tilt: %f", getCurrentRow(), getCurrentColumn(), _nav.rows, _nav.columns, getPanAngle(), getTiltAngle());
 	}
 }
 
@@ -549,7 +552,7 @@ Graphics::Surface *QuickTimeDecoder::PanoTrackHandler::constructMosaic(VideoTrac
 	Graphics::Surface *target = new Graphics::Surface();
 	target->create(w * framew, h * frameh, track->getPixelFormat());
 
-	warning("Pixel format: %s", track->getPixelFormat().toString().c_str());
+	debugC(1, kDebugLevelGVideo, "Pixel format: %s", track->getPixelFormat().toString().c_str());
 
 	Common::Rect srcRect(0, 0, framew, frameh);
 
@@ -600,12 +603,12 @@ void QuickTimeDecoder::PanoTrackHandler::constructPanorama() {
 		delete _constructedHotspots;
 	}
 
-	warning("scene: %d (%d x %d) hotspots: %d (%d x %d)", desc->_sceneTrackID, desc->_sceneSizeX, desc->_sceneSizeY,
+	debugC(1, kDebugLevelGVideo, "scene: %d (%d x %d) hotspots: %d (%d x %d)", desc->_sceneTrackID, desc->_sceneSizeX, desc->_sceneSizeY,
 			desc->_hotSpotTrackID, desc->_hotSpotSizeX, desc->_hotSpotSizeY);
 
-	warning("sceneNumFrames: %d x %d sceneColorDepth: %d", desc->_sceneNumFramesX, desc->_sceneNumFramesY, desc->_sceneColorDepth);
+	debugC(1, kDebugLevelGVideo, "sceneNumFrames: %d x %d sceneColorDepth: %d", desc->_sceneNumFramesX, desc->_sceneNumFramesY, desc->_sceneColorDepth);
 
-	warning("Node idx: %d", sample->hdr.nodeID);
+	debugC(1, kDebugLevelGVideo, "Node idx: %d", sample->hdr.nodeID);
 
 	int nodeidx = -1;
 	for (int i = 0; i < (int)_parent->panoInfo.nodes.size(); i++)
@@ -621,7 +624,7 @@ void QuickTimeDecoder::PanoTrackHandler::constructPanorama() {
 
 	uint32 timestamp = _parent->panoInfo.nodes[nodeidx].timestamp;
 
-	warning("Timestamp: %d", timestamp);
+	debugC(1, kDebugLevelGVideo, "Timestamp: %d", timestamp);
 
 	VideoTrackHandler *track = (VideoTrackHandler *)(_decoder->getTrack(_decoder->Common::QuickTimeParser::_tracks[desc->_sceneTrackID - 1]->targetTrack));
 
@@ -915,7 +918,7 @@ void QuickTimeDecoder::PanoTrackHandler::projectPanorama() {
 		float yInterpolator = sideEdgeXYInterpolators[y * 2 + 1];
 
 		int32 srcY = static_cast<int32>(yInterpolator * (float)h);
-		int32 scanlineWidth = static_cast<int32>(xInterpolator * w);
+		int32 scanlineWidth = static_cast<int32>(xInterpolator * w) / 2 * 2;
 		int32 startX = (w - scanlineWidth) / 2;
 		//int32 endX = startX + scanlineWidth;
 
@@ -957,13 +960,20 @@ void QuickTimeDecoder::lookupHotspot(int16 x, int16 y) {
 
 	if (hotspotPoint.x < 0) {
 		_rolloverHotspot = nullptr;
+		_rolloverHotspotID = 0;
 	} else {
 		int hotspotId = (int)(((PanoTrackHandler *)getTrack(_panoTrack->targetTrack))->_constructedHotspots->getPixel(hotspotPoint.y, hotspotPoint.x));
 
+		_rolloverHotspotID = hotspotId;
 
 		if (hotspotId && _currentSample != -1) {
 			if (!_rolloverHotspot || _rolloverHotspot->id != hotspotId)
 				_rolloverHotspot = _panoTrack->panoSamples[_currentSample].hotSpotTable.get(hotspotId);
+
+			if (!_rolloverHotspot)
+				debugC(1, kDebugLevelGVideo, "Hotspot id: %d has no data", hotspotId);
+			else
+				debugC(1, kDebugLevelGVideo, "Hotspot id: %d is of type '%s'", hotspotId, tag2str(_rolloverHotspot->type));
 		} else {
 			_rolloverHotspot = nullptr;
 		}
@@ -994,6 +1004,7 @@ const QuickTimeDecoder::PanoNavigation *QuickTimeDecoder::getHotSpotNavByID(int 
 
 void QuickTimeDecoder::setClickedHotSpot(int id) {
 	_clickedHotspot = getHotSpotByID(id);
+	_clickedHotspotID = id;
 }
 
 
@@ -1125,19 +1136,23 @@ void QuickTimeDecoder::handlePanoMouseButton(bool isDown, int16 x, int16 y, bool
 		_mouseDrag.x = x;
 		_mouseDrag.y = y;
 
-		if (_rolloverHotspot)
-			_clickedHotspot = _rolloverHotspot;
+		_clickedHotspot = _rolloverHotspot;
+		_clickedHotspotID = _rolloverHotspotID;
 	}
 
-	if (!repeat && !isDown && _rolloverHotspot && _rolloverHotspot->type == MKTAG('l','i','n','k') && _prevMouse == _mouseDrag) {
-		PanoLink *link = _panoTrack->panoSamples[_currentSample].linkTable.get(_rolloverHotspot->typeData);
+	if (!repeat && !isDown && _rolloverHotspot && _prevMouse == _mouseDrag) {
+		if (_rolloverHotspot->type == MKTAG('l','i','n','k')) {
+			PanoLink *link = _panoTrack->panoSamples[_currentSample].linkTable.get(_rolloverHotspot->typeData);
 
-		if (link) {
-			goToNode(link->toNodeID);
+			if (link) {
+				goToNode(link->toNodeID);
 
-			setPanAngle(link->toHPan);
-			setTiltAngle(link->toVPan);
-			setFOV(link->toZoom);
+				setPanAngle(link->toHPan);
+				setTiltAngle(link->toVPan);
+				setFOV(link->toZoom);
+			}
+		} else if (_rolloverHotspot->type == MKTAG('n','a','v','g')) {
+			warning("navg hotpot id #%d not processed", _rolloverHotspot->id);
 		}
 	}
 
@@ -1224,6 +1239,9 @@ void QuickTimeDecoder::handlePanoKey(Common::KeyState &state, bool down, bool re
 	} else {
 		_zoomState = kZoomNone;
 	}
+
+	if (state.keycode == Common::KEYCODE_h && down && !repeat)
+		renderHotspots(!_renderHotspots);
 }
 
 enum {

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ScummVM 2.8.0git\n"
 "Report-Msgid-Bugs-To: scummvm-devel@lists.scummvm.org\n"
-"POT-Creation-Date: 2025-02-22 23:10+0000\n"
+"POT-Creation-Date: 2025-03-06 18:07+0000\n"
 "PO-Revision-Date: 2023-03-26 11:16+0000\n"
 "Last-Translator: Malek Bellasfar <bellasfarmalek450@gmail.com>\n"
 "Language-Team: Arabic <https://translations.scummvm.org/projects/scummvm/"
@@ -101,7 +101,7 @@ msgstr "اذهب للأعلى"
 #: gui/downloadpacksdialog.cpp:464 gui/editgamedialog.cpp:340
 #: gui/editrecorddialog.cpp:66 gui/integrity-dialog.cpp:118
 #: gui/integrity-dialog.cpp:169 gui/filebrowser-dialog.cpp:68
-#: gui/fluidsynth-dialog.cpp:152 gui/massadd.cpp:93 gui/options.cpp:2427
+#: gui/fluidsynth-dialog.cpp:153 gui/massadd.cpp:93 gui/options.cpp:2427
 #: gui/predictivedialog.cpp:68 gui/recorderdialog.cpp:73
 #: gui/recorderdialog.cpp:212 gui/remotebrowser.cpp:59
 #: gui/saveload-dialog.cpp:64 gui/saveload-dialog.cpp:456
@@ -324,27 +324,27 @@ msgstr "تخزين آخر يعمل الآن. هل تريد مقاطعته؟"
 
 #: gui/cloudconnectionwizard.cpp:499 gui/downloaddialog.cpp:118
 #: gui/downloaddialog.cpp:152 gui/filebrowser-dialog.cpp:135
-#: gui/fluidsynth-dialog.cpp:209 gui/launcher.cpp:421 gui/launcher.cpp:450
+#: gui/fluidsynth-dialog.cpp:210 gui/launcher.cpp:421 gui/launcher.cpp:450
 #: gui/launcher.cpp:502 gui/options.cpp:3528 gui/options.cpp:3911
 #: base/main.cpp:585 backends/events/default/default-events.cpp:193
 #: engines/buried/buried.cpp:590 engines/director/events.cpp:100
 #: engines/director/lingo/xlibs/jitdraw3.cpp:139 engines/grim/grim.cpp:366
 #: engines/kyra/gui/saveload_eob.cpp:611 engines/kyra/gui/saveload_eob.cpp:644
 #: engines/parallaction/metaengine.cpp:143
-#: engines/sci/graphics/controls32.cpp:929 engines/scumm/scumm.cpp:4192
+#: engines/sci/graphics/controls32.cpp:929 engines/scumm/scumm.cpp:4199
 #: engines/toon/toon.cpp:1543
 msgid "Yes"
 msgstr "نعم"
 
 #: gui/cloudconnectionwizard.cpp:499 gui/downloaddialog.cpp:118
 #: gui/downloaddialog.cpp:153 gui/filebrowser-dialog.cpp:135
-#: gui/fluidsynth-dialog.cpp:209 gui/launcher.cpp:421 gui/launcher.cpp:450
+#: gui/fluidsynth-dialog.cpp:210 gui/launcher.cpp:421 gui/launcher.cpp:450
 #: gui/launcher.cpp:502 gui/options.cpp:3528 gui/options.cpp:3911
 #: engines/buried/buried.cpp:590 engines/director/events.cpp:100
 #: engines/director/lingo/xlibs/jitdraw3.cpp:139 engines/grim/grim.cpp:366
 #: engines/kyra/gui/saveload_eob.cpp:611 engines/kyra/gui/saveload_eob.cpp:644
 #: engines/parallaction/metaengine.cpp:149
-#: engines/sci/graphics/controls32.cpp:929 engines/scumm/scumm.cpp:4192
+#: engines/sci/graphics/controls32.cpp:929 engines/scumm/scumm.cpp:4199
 #: engines/toon/toon.cpp:1543
 msgid "No"
 msgstr "لا"
@@ -362,7 +362,7 @@ msgstr ""
 
 #: gui/cloudconnectionwizard.cpp:557 gui/downloaddialog.cpp:146
 #: gui/editgamedialog.cpp:341 gui/editrecorddialog.cpp:67
-#: gui/integrity-dialog.cpp:176 gui/fluidsynth-dialog.cpp:153
+#: gui/integrity-dialog.cpp:176 gui/fluidsynth-dialog.cpp:154
 #: gui/launcher.cpp:558 gui/launcher.cpp:562 gui/massadd.cpp:90
 #: gui/options.cpp:2429 gui/predictivedialog.cpp:69
 #: gui/saveload-dialog.cpp:1244 dists/android.strings.xml.cpp:33
@@ -370,18 +370,17 @@ msgstr ""
 #: backends/platform/wii/options.cpp:46 engines/agos/animation.cpp:577
 #: engines/agos/midi.cpp:320 engines/agos/midi.cpp:378
 #: engines/agos/midi.cpp:457 engines/buried/saveload.cpp:83
-#: engines/director/lingo/lingo-builtins.cpp:2094
+#: engines/director/lingo/lingo-builtins.cpp:2132
 #: engines/drascula/saveload.cpp:48 engines/grim/inputdialog.cpp:83
 #: engines/groovie/script.cpp:665 engines/mtropolis/mtropolis.cpp:114
 #: engines/mtropolis/mtropolis.cpp:124 engines/parallaction/saveload.cpp:270
 #: engines/saga/music.cpp:102 engines/sci/engine/kgraphics.cpp:76
-#: engines/sci/graphics/controls32.cpp:926 engines/scumm/scumm.cpp:1344
-#: engines/scumm/scumm.cpp:1761 engines/scumm/scumm.cpp:2251
-#: engines/scumm/scumm.cpp:2267 engines/sky/compact.cpp:140
-#: engines/sword1/animation.cpp:532 engines/sword1/animation.cpp:563
-#: engines/sword1/animation.cpp:571 engines/sword1/control.cpp:2816
-#: engines/sword1/logic.cpp:1732 engines/sword2/animation.cpp:426
-#: engines/sword2/animation.cpp:456 engines/sword2/animation.cpp:466
+#: engines/sci/graphics/controls32.cpp:926 engines/scumm/scumm.cpp:1351
+#: engines/scumm/scumm.cpp:1768 engines/scumm/scumm.cpp:2258
+#: engines/scumm/scumm.cpp:2274 engines/sky/compact.cpp:140
+#: engines/sword1/animation.cpp:566 engines/sword1/animation.cpp:574
+#: engines/sword1/control.cpp:2816 engines/sword1/logic.cpp:1738
+#: engines/sword2/animation.cpp:459 engines/sword2/animation.cpp:469
 #: engines/vcruise/vcruise.cpp:96 engines/vcruise/vcruise.cpp:106
 #: engines/zvision/file/save_manager.cpp:225
 msgid "OK"
@@ -945,7 +944,7 @@ msgstr "رطوبة:"
 msgid "Width:"
 msgstr "العرظ:"
 
-#: gui/fluidsynth-dialog.cpp:93 gui/fluidsynth-dialog.cpp:111
+#: gui/fluidsynth-dialog.cpp:93 gui/fluidsynth-dialog.cpp:112
 msgid "Level:"
 msgstr "المستوى:"
 
@@ -953,65 +952,66 @@ msgstr "المستوى:"
 msgid "Chorus"
 msgstr "النشيد"
 
-#: gui/fluidsynth-dialog.cpp:104
+#. I18N: N stands for number here
+#: gui/fluidsynth-dialog.cpp:105
 msgid "N:"
 msgstr "رقم:"
 
-#: gui/fluidsynth-dialog.cpp:118
+#: gui/fluidsynth-dialog.cpp:119
 msgid "Speed:"
 msgstr "السرعة:"
 
-#: gui/fluidsynth-dialog.cpp:125
+#: gui/fluidsynth-dialog.cpp:126
 msgid "Depth:"
 msgstr "العمق:"
 
-#: gui/fluidsynth-dialog.cpp:132
+#: gui/fluidsynth-dialog.cpp:133
 msgid "Type:"
 msgstr "النوع:"
 
-#: gui/fluidsynth-dialog.cpp:135
+#: gui/fluidsynth-dialog.cpp:136
 msgid "Sine"
 msgstr "شرط"
 
-#: gui/fluidsynth-dialog.cpp:136 backends/platform/sdl/ps3/ps3.cpp:43
+#: gui/fluidsynth-dialog.cpp:137 backends/platform/sdl/ps3/ps3.cpp:43
 #: backends/platform/sdl/psp2/psp2.cpp:46 engines/dragons/metaengine.cpp:189
 msgid "Triangle"
 msgstr "المثلث"
 
-#: gui/fluidsynth-dialog.cpp:138 gui/options.cpp:2375
+#: gui/fluidsynth-dialog.cpp:139 gui/options.cpp:2375
 msgid "Misc"
 msgstr "ذو خصائص مختلفة"
 
-#: gui/fluidsynth-dialog.cpp:140
+#: gui/fluidsynth-dialog.cpp:141
 msgid "Interpolation:"
 msgstr "استيفاء:"
 
-#: gui/fluidsynth-dialog.cpp:143
+#: gui/fluidsynth-dialog.cpp:144
 msgid "None (fastest)"
 msgstr "لا شيء (الأسرع)"
 
-#: gui/fluidsynth-dialog.cpp:144
+#: gui/fluidsynth-dialog.cpp:145
 msgid "Linear"
 msgstr "خطي"
 
-#: gui/fluidsynth-dialog.cpp:145
+#: gui/fluidsynth-dialog.cpp:146
 msgid "Fourth-order"
 msgstr "رابع الترتيب"
 
-#: gui/fluidsynth-dialog.cpp:146
+#: gui/fluidsynth-dialog.cpp:147
 msgid "Seventh-order"
 msgstr "الترتيب السابع"
 
 #. I18N: Button to reset keymap mappings to defaults
-#: gui/fluidsynth-dialog.cpp:150 backends/keymapper/remap-widget.cpp:327
+#: gui/fluidsynth-dialog.cpp:151 backends/keymapper/remap-widget.cpp:327
 msgid "Reset"
 msgstr "إعادة الضبط"
 
-#: gui/fluidsynth-dialog.cpp:150
+#: gui/fluidsynth-dialog.cpp:151
 msgid "Reset all FluidSynth settings to their default values."
 msgstr "إعادة تعيين جميع إعدادات FluidSynth إلى قيمها الافتراضية."
 
-#: gui/fluidsynth-dialog.cpp:209
+#: gui/fluidsynth-dialog.cpp:210
 msgid ""
 "Do you really want to reset all FluidSynth settings to their default values?"
 msgstr "هل تريد حقًا إعادة تعيين جميع إعدادات FluidSynth إلى قيمها الافتراضية؟"
@@ -2964,7 +2964,7 @@ msgstr ""
 "يجب تنفيذ الخطوتين 2 و 3 مرة واحدة فقط لجميع ألعابك."
 
 #: base/main.cpp:652 base/main.cpp:677
-#: engines/director/lingo/lingo-builtins.cpp:1416
+#: engines/director/lingo/lingo-builtins.cpp:1454
 #: engines/director/lingo/xlibs/jitdraw3.cpp:123
 #: engines/director/lingo/xlibs/jitdraw3.cpp:131
 msgid "Ok"
@@ -6020,7 +6020,7 @@ msgstr "أضف قائمة سرعة اللعبة (على غرار إصدار ال
 #: engines/dreamweb/metaengine.cpp:36 engines/gob/metaengine.cpp:42
 #: engines/lure/metaengine.cpp:41 engines/mads/metaengine.cpp:51
 #: engines/mm/metaengine.cpp:46 engines/saga/metaengine.cpp:52
-#: engines/scumm/dialogs.cpp:1195 engines/scumm/metaengine.cpp:785
+#: engines/scumm/dialogs.cpp:1202 engines/scumm/metaengine.cpp:785
 #, fuzzy
 #| msgid "Enable Discord integration"
 msgid "Enable copy protection"
@@ -6030,7 +6030,7 @@ msgstr "تمكين تكامل Discord"
 #: engines/dreamweb/metaengine.cpp:37 engines/gob/metaengine.cpp:43
 #: engines/lure/metaengine.cpp:42 engines/mads/metaengine.cpp:52
 #: engines/mm/metaengine.cpp:47 engines/saga/metaengine.cpp:53
-#: engines/scumm/dialogs.cpp:1196 engines/scumm/metaengine.cpp:786
+#: engines/scumm/dialogs.cpp:1203 engines/scumm/metaengine.cpp:786
 msgid "Enable any copy protection that would otherwise be bypassed by default."
 msgstr ""
 
@@ -6093,7 +6093,7 @@ msgstr "استرجع"
 msgid "Quick load or save game isn't supported in this location"
 msgstr "لا يتم دعم التحميل السريع أو حفظ اللعبة في هذا الموقع"
 
-#: engines/agos/saveload.cpp:161 engines/scumm/scumm.cpp:3147
+#: engines/agos/saveload.cpp:161 engines/scumm/scumm.cpp:3154
 #, c-format
 msgid ""
 "Failed to load saved game from file:\n"
@@ -6104,7 +6104,7 @@ msgstr ""
 "\n"
 "%s"
 
-#: engines/agos/saveload.cpp:196 engines/scumm/scumm.cpp:3134
+#: engines/agos/saveload.cpp:196 engines/scumm/scumm.cpp:3141
 #, c-format
 msgid ""
 "Failed to save game to file:\n"
@@ -6115,7 +6115,7 @@ msgstr ""
 "\n"
 "%s"
 
-#: engines/agos/saveload.cpp:204 engines/scumm/scumm.cpp:3167
+#: engines/agos/saveload.cpp:204 engines/scumm/scumm.cpp:3174
 #, c-format
 msgid ""
 "Successfully saved game in file:\n"
@@ -7419,7 +7419,7 @@ msgstr "قم بإنهاء اللعبة"
 msgid "Versailles 1685 support is not compiled in"
 msgstr "لم يتم تجميع دعم Versailles 1685"
 
-#: engines/darkseed/darkseed.cpp:67
+#: engines/darkseed/darkseed.cpp:68
 #, fuzzy
 #| msgid "Unable to locate the '%s' engine data file."
 msgid "Unable to locate the darkseed.dat engine data file."
@@ -8000,7 +8000,7 @@ msgstr ""
 msgid "Thor Dies"
 msgstr ""
 
-#: engines/got/got.cpp:181 engines/got/got.cpp:191
+#: engines/got/got.cpp:185 engines/got/got.cpp:195
 #, fuzzy
 #| msgid "Saving game is currently unavailable"
 msgid "Savegames are not available in demo mode"
@@ -9389,7 +9389,7 @@ msgstr "أسرع"
 msgid "Normal"
 msgstr "طبيعي"
 
-#: engines/mohawk/dialogs.cpp:367 engines/scumm/dialogs.cpp:1493
+#: engines/mohawk/dialogs.cpp:367 engines/scumm/dialogs.cpp:1500
 msgid "Best"
 msgstr "أفضل"
 
@@ -10551,7 +10551,7 @@ msgid "Your Name:"
 msgstr "الأسم:"
 
 #. I18N: Button, start hosting online multiplayer game
-#: engines/scumm/dialog-createsession.cpp:49 engines/scumm/scumm.cpp:4198
+#: engines/scumm/dialog-createsession.cpp:49 engines/scumm/scumm.cpp:4205
 msgid "Host"
 msgstr "يستضيف"
 
@@ -10561,7 +10561,7 @@ msgid "Querying games..."
 msgstr "جاري الاستعلام عن الألعاب ..."
 
 #. I18N: Join online multiplayer game
-#: engines/scumm/dialog-sessionselector.cpp:64 engines/scumm/scumm.cpp:4198
+#: engines/scumm/dialog-sessionselector.cpp:64 engines/scumm/scumm.cpp:4205
 msgid "Join"
 msgstr "ينضم"
 
@@ -10689,11 +10689,22 @@ msgstr "تمكين تصحيح نسبة العرض إلى الارتفاع"
 msgid "Brighten the graphics to simulate a Macintosh monitor."
 msgstr ""
 
-#: engines/scumm/dialogs.cpp:1305
+#: engines/scumm/dialogs.cpp:1195
+msgid "Simulate Sega colors"
+msgstr ""
+
+#: engines/scumm/dialogs.cpp:1196
+msgid ""
+"Instead of using the colors defined in the game, simulate colors used on "
+"actual Sega hardware. These are significantly darker, though it's unclear if "
+"that was intended or not."
+msgstr ""
+
+#: engines/scumm/dialogs.cpp:1312
 msgid "Overture Timing:"
 msgstr "توقيت الافتتاح:"
 
-#: engines/scumm/dialogs.cpp:1309
+#: engines/scumm/dialogs.cpp:1316
 msgid ""
 "When using replacement music, this adjusts the time when the Overture "
 "changes to the scene with the Lucasfilm and Loom logotypes."
@@ -10701,64 +10712,64 @@ msgstr ""
 "عند استخدام الموسيقى البديلة ، يضبط هذا الوقت عندما تتغير المقدمة إلى المشهد "
 "باستخدام شعاري Lucasfilm و Loom."
 
-#: engines/scumm/dialogs.cpp:1396
+#: engines/scumm/dialogs.cpp:1403
 msgid "Music Quality:"
 msgstr ""
 
-#: engines/scumm/dialogs.cpp:1400
+#: engines/scumm/dialogs.cpp:1407
 msgid ""
 "Select music quality. The original lets you choose this from the Game menu."
 msgstr ""
 
-#: engines/scumm/dialogs.cpp:1401
+#: engines/scumm/dialogs.cpp:1408
 msgid ""
 "Select music quality. The original determines the basic setup by hardware "
 "detection and speed tests, but also allows changes through the Game menu to "
 "some degree."
 msgstr ""
 
-#: engines/scumm/dialogs.cpp:1492 engines/scumm/dialogs.cpp:1493
+#: engines/scumm/dialogs.cpp:1499 engines/scumm/dialogs.cpp:1500
 msgid "auto"
 msgstr ""
 
-#: engines/scumm/dialogs.cpp:1492
+#: engines/scumm/dialogs.cpp:1499
 msgid "Low"
 msgstr ""
 
-#: engines/scumm/dialogs.cpp:1492
+#: engines/scumm/dialogs.cpp:1499
 #: engines/scumm/he/moonbase/dialog-mapgenerator.cpp:75
 #, fuzzy
 #| msgid "Medium"
 msgid "Medium"
 msgstr "متوسط"
 
-#: engines/scumm/dialogs.cpp:1492
+#: engines/scumm/dialogs.cpp:1499
 msgid "High"
 msgstr ""
 
-#: engines/scumm/dialogs.cpp:1493
+#: engines/scumm/dialogs.cpp:1500
 msgid "Good"
 msgstr ""
 
-#: engines/scumm/dialogs.cpp:1493
+#: engines/scumm/dialogs.cpp:1500
 msgid "Better"
 msgstr ""
 
-#: engines/scumm/dialogs.cpp:1494
+#: engines/scumm/dialogs.cpp:1501
 #, c-format
 msgid "Hardware Rating: %s   -   "
 msgstr ""
 
-#: engines/scumm/dialogs.cpp:1494
+#: engines/scumm/dialogs.cpp:1501
 #, c-format
 msgid "Quality Selection: %s"
 msgstr ""
 
-#: engines/scumm/dialogs.cpp:1508
+#: engines/scumm/dialogs.cpp:1515
 msgid "Playback Adjust:"
 msgstr "ضبط التشغيل:"
 
-#: engines/scumm/dialogs.cpp:1512
+#: engines/scumm/dialogs.cpp:1519
 msgid ""
 "When playing sound from the CD audio track, adjust the start position of the "
 "sound by this much. Use this if you often hear bits of the wrong sound."
@@ -10766,11 +10777,11 @@ msgstr ""
 "عند تشغيل الصوت من المسار الصوتي للقرص المضغوط ، اضبط موضع بدء الصوت بهذا "
 "القدر. استخدم هذا إذا كنت تسمع أجزاء صغيرة من الصوت الخطأ."
 
-#: engines/scumm/dialogs.cpp:1592
+#: engines/scumm/dialogs.cpp:1604
 msgid "Intro Adjust:"
 msgstr "ضبط المقدمة:"
 
-#: engines/scumm/dialogs.cpp:1596
+#: engines/scumm/dialogs.cpp:1608
 msgid ""
 "When playing the intro track, play from this point in it. Use this if the "
 "music gets cut off prematurely, or if you are unhappy with the way the music "
@@ -10780,11 +10791,11 @@ msgstr ""
 "الموسيقى قبل الأوان ، أو إذا كنت غير راضٍ عن الطريقة التي تتزامن بها الموسيقى "
 "مع المقدمة."
 
-#: engines/scumm/dialogs.cpp:1605
+#: engines/scumm/dialogs.cpp:1617
 msgid "Outlook Adjust:"
 msgstr "ضبط الآفاق:"
 
-#: engines/scumm/dialogs.cpp:1609
+#: engines/scumm/dialogs.cpp:1621
 msgid ""
 "The outlook music is part of the intro track. Adjust the position in the "
 "track at which it starts playing. Use this if the music is cut off, or if "
@@ -10794,26 +10805,26 @@ msgstr ""
 "عنده اللعب. استخدم هذا إذا تم قطع الموسيقى ، أو إذا سمعت جزءًا من الموسيقى "
 "السابقة."
 
-#: engines/scumm/dialogs.cpp:1711 engines/scumm/metaengine.cpp:737
+#: engines/scumm/dialogs.cpp:1734 engines/scumm/metaengine.cpp:737
 msgid "Load modded audio"
 msgstr "تحميل الصوت المعدل"
 
-#: engines/scumm/dialogs.cpp:1711 engines/scumm/metaengine.cpp:738
+#: engines/scumm/dialogs.cpp:1734 engines/scumm/metaengine.cpp:738
 msgid ""
 "Replace music, sound effects, and speech clips with modded audio files, if "
 "available."
 msgstr ""
 "استبدل الموسيقى والمؤثرات الصوتية ومقاطع الكلام بملفات صوتية معدلة ، إن وجدت."
 
-#: engines/scumm/dialogs.cpp:1713
+#: engines/scumm/dialogs.cpp:1736
 msgid "Multiplayer Server:"
 msgstr "خادم متعدد اللاعبين:"
 
-#: engines/scumm/dialogs.cpp:1719
+#: engines/scumm/dialogs.cpp:1742
 msgid "Online Server:"
 msgstr "الخادم عبر الإنترنت:"
 
-#: engines/scumm/dialogs.cpp:1720
+#: engines/scumm/dialogs.cpp:1743
 msgid ""
 "Address of the server to connect to for online play.  It must start with "
 "either \"https://\" or \"http://\" schemas."
@@ -10821,22 +10832,22 @@ msgstr ""
 "عنوان الخادم المراد الاتصال به للعب عبر الإنترنت. يجب أن يبدأ إما بمخططات "
 "\"https://\" أو \"http://\"."
 
-#: engines/scumm/dialogs.cpp:1722
+#: engines/scumm/dialogs.cpp:1745
 msgid "Enable online competitive mods"
 msgstr "تمكين التعديلات التنافسية عبر الإنترنت"
 
-#: engines/scumm/dialogs.cpp:1722
+#: engines/scumm/dialogs.cpp:1745
 #, fuzzy
 #| msgid ""
 #| "Enables custom-made modifications intented for online competitive play."
 msgid "Enables custom-made modifications intended for online competitive play."
 msgstr "تمكن من إجراء تعديلات مخصصة مصممة للعب التنافسي عبر الإنترنت."
 
-#: engines/scumm/dialogs.cpp:1726
+#: engines/scumm/dialogs.cpp:1749
 msgid "Enable connection to Multiplayer Server"
 msgstr "تمكين الاتصال بخادم متعدد اللاعبين"
 
-#: engines/scumm/dialogs.cpp:1726
+#: engines/scumm/dialogs.cpp:1749
 msgid ""
 "Toggles the connection to the server that allows hosting and joining online "
 "multiplayer games over the Internet."
@@ -10844,24 +10855,24 @@ msgstr ""
 "يبدل الاتصال بالخادم الذي يسمح باستضافة الألعاب متعددة اللاعبين عبر الإنترنت "
 "والانضمام إليها عبر الإنترنت."
 
-#: engines/scumm/dialogs.cpp:1727
+#: engines/scumm/dialogs.cpp:1750
 msgid "Host games over LAN"
 msgstr "استضف الألعاب عبر الشبكة المحلية"
 
-#: engines/scumm/dialogs.cpp:1727
+#: engines/scumm/dialogs.cpp:1750
 msgid "Allows the game sessions to be discovered over your local area network."
 msgstr "يسمح باكتشاف جلسات اللعبة عبر شبكة المنطقة المحلية الخاصة بك."
 
 #. I18N: Moonbase Console is a program name
-#: engines/scumm/dialogs.cpp:1731
+#: engines/scumm/dialogs.cpp:1754
 msgid "Generate random maps"
 msgstr ""
 
-#: engines/scumm/dialogs.cpp:1731
+#: engines/scumm/dialogs.cpp:1754
 msgid "Allow random map generation (Based from Moonbase Console)."
 msgstr ""
 
-#: engines/scumm/dialogs.cpp:1734
+#: engines/scumm/dialogs.cpp:1757
 msgid ""
 "Address of the server to connect to for hosting and joining online game "
 "sessions."
@@ -11539,7 +11550,7 @@ msgid ""
 "this save file."
 msgstr ""
 
-#: engines/scumm/scumm.cpp:305
+#: engines/scumm/scumm.cpp:312
 msgid ""
 "You have enabled 'aspect ratio correction'. However, FM-TOWNS' natural "
 "resolution is 320x240, which doesn't allow aspect ratio correction.\n"
@@ -11552,18 +11563,18 @@ msgstr ""
 "يمكن تحقيق تصحيح نسبة العرض إلى الارتفاع عن طريق خفض الدقة إلى 200 ×300 ، "
 "تحت علامة تبويب \"المحرك\"."
 
-#: engines/scumm/scumm.cpp:1335
+#: engines/scumm/scumm.cpp:1342
 #, c-format
 msgid "This game requires the '%s' Macintosh executable for its fonts."
 msgstr ""
 
-#: engines/scumm/scumm.cpp:1339
+#: engines/scumm/scumm.cpp:1346
 #, c-format
 msgid ""
 "This game requires the '%s' Macintosh executable for its music and fonts."
 msgstr ""
 
-#: engines/scumm/scumm.cpp:1343
+#: engines/scumm/scumm.cpp:1350
 #, fuzzy, c-format
 #| msgid ""
 #| "Could not find the 'Monkey Island' Macintosh executable to read the\n"
@@ -11575,25 +11586,25 @@ msgstr ""
 "تعذر العثور على ملف Macintosh القابل للتنفيذ \"Monkey Island\" لقراءة ملف\n"
 "أدوات من. سيتم تعطيل الموسيقى."
 
-#: engines/scumm/scumm.cpp:1344
+#: engines/scumm/scumm.cpp:1351
 msgid "The Mac GUI"
 msgstr ""
 
-#: engines/scumm/scumm.cpp:1344
+#: engines/scumm/scumm.cpp:1351
 msgid "The music and the Mac GUI"
 msgstr ""
 
-#: engines/scumm/scumm.cpp:1364
+#: engines/scumm/scumm.cpp:1371
 #, c-format
 msgid "Could not open Macintosh resource file %s"
 msgstr ""
 
-#: engines/scumm/scumm.cpp:1367
+#: engines/scumm/scumm.cpp:1374
 #, c-format
 msgid "Could not find resource fork in Macintosh resource file %s"
 msgstr ""
 
-#: engines/scumm/scumm.cpp:1375
+#: engines/scumm/scumm.cpp:1382
 #, c-format
 msgid ""
 "'%s' appears to be the wrong Dig executable. It may be the launcher one "
@@ -11602,7 +11613,7 @@ msgid ""
 "its sub-folders should be what you need."
 msgstr ""
 
-#: engines/scumm/scumm.cpp:1758
+#: engines/scumm/scumm.cpp:1765
 msgid ""
 "Audio files compressed with ScummVM Tools were detected; *.BUN/*.SOU\n"
 "compression is not supported anymore for this game, audio will be disabled.\n"
@@ -11612,7 +11623,7 @@ msgstr ""
 "لم يعد الضغط مدعومًا لهذه اللعبة ، وسيتم تعطيل الصوت.\n"
 "يرجى نسخ اللعبة من الوسائط الأصلية دون ضغط."
 
-#: engines/scumm/scumm.cpp:2249
+#: engines/scumm/scumm.cpp:2256
 #, c-format
 msgid ""
 "Native MIDI support requires the Roland Upgrade from LucasArts,\n"
@@ -11621,7 +11632,7 @@ msgstr ""
 "يتطلب دعم MIDI الأصلي ترقية Roland من LucasArts ،\n"
 "لكن%s مفقود. استخدام AdLib بدلاً من ذلك."
 
-#: engines/scumm/scumm.cpp:2265
+#: engines/scumm/scumm.cpp:2272
 msgid ""
 "This particular version of Monkey Island 1 is known to miss some\n"
 "required resources for MT-32. Using AdLib instead."
@@ -11629,7 +11640,7 @@ msgstr ""
 "من المعروف أن هذه النسخة الخاصة من Monkey Island 1 تفتقد بعضًا منها\n"
 "الموارد المطلوبة ل MT-32. استخدام AdLib بدلاً من ذلك."
 
-#: engines/scumm/scumm.cpp:4086
+#: engines/scumm/scumm.cpp:4093
 msgid ""
 "Usually, Maniac Mansion would start now. But for that to work, the game "
 "files for Maniac Mansion have to be in the 'Maniac' directory inside the "
@@ -11639,7 +11650,7 @@ msgstr ""
 "اللعبة الخاصة ب Maniac Mansion في دليل \"Maniac\" داخل دليل لعبة Tentacle ، "
 "ويجب إضافة اللعبة إلى ScummVM."
 
-#: engines/scumm/scumm.cpp:4198
+#: engines/scumm/scumm.cpp:4205
 msgid "Would you like to host or join a network play session?"
 msgstr "هل ترغب في استضافة أو الانضمام إلى جلسة لعب على الشبكة؟"
 
@@ -11721,7 +11732,7 @@ msgstr ""
 msgid "Picks the map size randomly."
 msgstr ""
 
-#. I18N: Map tilesets
+#. I18N: Map tile sets
 #: engines/scumm/he/moonbase/dialog-mapgenerator.cpp:85
 #, fuzzy
 #| msgid "Reset"
@@ -12083,17 +12094,12 @@ msgstr ""
 "يزيل بعض الإجراءات المتكررة ، ويضيف إمكانية تغيير الأفعال عن طريق لوحة "
 "المفاتيح"
 
-#: engines/sword1/animation.cpp:532
-#, c-format
-msgid "PSX stream cutscene '%s' cannot be played in paletted mode"
-msgstr "لا يمكن تشغيل مقطع دفق PSX ' %s' في وضع paletted"
-
-#: engines/sword1/animation.cpp:563 engines/sword2/animation.cpp:456
+#: engines/sword1/animation.cpp:566 engines/sword2/animation.cpp:459
 msgid ""
 "MPEG-2 cutscenes found but ScummVM has been built without MPEG-2 support"
 msgstr "تم العثور على قطع MPEG-2 ولكن تم إنشاء ScummVM بدون دعم MPEG-2"
 
-#: engines/sword1/animation.cpp:570 engines/sword2/animation.cpp:465
+#: engines/sword1/animation.cpp:573 engines/sword2/animation.cpp:468
 #, c-format
 msgid "Cutscene '%s' not found"
 msgstr "لم يتم العثور على Cutscene '%s'"
@@ -12132,7 +12138,7 @@ msgstr "احتفظ بالقديم"
 msgid "Keep the new one"
 msgstr "احتفظ بالجديد"
 
-#: engines/sword1/logic.cpp:1732
+#: engines/sword1/logic.cpp:1738
 msgid "This is the end of the Broken Sword 1 Demo"
 msgstr "هذه نهاية العرض التوضيحي ل Broken Sword 1"
 
@@ -12194,11 +12200,6 @@ msgstr ""
 #| msgid "Main Men~u~"
 msgid "Main Menu"
 msgstr "~القائمة~ الرئيسية"
-
-#: engines/sword2/animation.cpp:426
-msgid ""
-"PSX cutscenes found but ScummVM has been built without RGB color support"
-msgstr "تم العثور على مشاهد PSX ولكن تم إنشاء ScummVM بدون دعم ألوان RGB"
 
 #: engines/sword2/detection_tables.h:419
 #, fuzzy
@@ -13138,13 +13139,14 @@ msgstr "فشلت قراءة معلومات الإصدار من حفظ الملف
 msgid "An unknown error occurred while attempting to load the saved game."
 msgstr "حدث خطأ غير معروف أثناء محاولة تحميل اللعبة المحفوظة."
 
-#: engines/voyeur/metaengine.cpp:42
+#. I18N: lockout is code to start the game
+#: engines/voyeur/metaengine.cpp:43
 #, fuzzy
 #| msgid "Enable storage"
 msgid "Enable lockout system"
 msgstr "تمكين التخزين"
 
-#: engines/voyeur/metaengine.cpp:43
+#: engines/voyeur/metaengine.cpp:44
 msgid "Require a lockout code to start the game."
 msgstr ""
 
@@ -13846,6 +13848,14 @@ msgstr ""
 "أو حزمة GNU FreeFont. ستحتاج إلى جميع الخطوط من حزمة الخطوط التي تختارها ، "
 "مثل LiberationMono و LiberationSans و LiberationSerif أو FreeMono و FreeSans "
 "و FreeSerif على التوالي."
+
+#, c-format
+#~ msgid "PSX stream cutscene '%s' cannot be played in paletted mode"
+#~ msgstr "لا يمكن تشغيل مقطع دفق PSX ' %s' في وضع paletted"
+
+#~ msgid ""
+#~ "PSX cutscenes found but ScummVM has been built without RGB color support"
+#~ msgstr "تم العثور على مشاهد PSX ولكن تم إنشاء ScummVM بدون دعم ألوان RGB"
 
 #, fuzzy
 #~| msgid ""

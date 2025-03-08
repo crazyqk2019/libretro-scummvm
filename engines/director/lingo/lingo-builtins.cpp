@@ -632,9 +632,30 @@ void LB::b_value(int nargs) {
 // Lists
 ///////////////////
 void LB::b_add(int nargs) {
-	// FIXME: when a list is "sorted", add should insert based on
-	// the current ordering. otherwise, append to the end.
-	LB::b_append(nargs);
+	Datum value = g_lingo->pop();
+	Datum list = g_lingo->pop();
+
+	TYPECHECK(list, ARRAY);
+
+	// If the list is sorted, keep the sort
+	if (list.u.farr->_sorted) {
+		if (list.u.farr->arr.empty()) {
+			list.u.farr->arr.push_back(value);
+		} else {
+			// TODO: We'd better do a binary search here
+			uint pos = list.u.farr->arr.size();
+			for (uint i = 0; i < list.u.farr->arr.size(); i++) {
+				if (list.u.farr->arr[i] > value) { // We are using Datum::compareTo() here
+					pos = i;
+					break;
+				}
+			}
+			list.u.farr->arr.insert_at(pos, value);
+		}
+	} else {
+		list.u.farr->arr.push_back(value);
+		list.u.farr->_sorted = false;		// Drop the sorted flag
+	}
 }
 
 void LB::b_addAt(int nargs) {
@@ -669,7 +690,7 @@ void LB::b_addProp(int nargs) {
 		else {
 			uint pos = list.u.parr->arr.size();
 			for (uint i = 0; i < list.u.parr->arr.size(); i++) {
-				if (list.u.parr->arr[i].p.asString() > cell.p.asString()) {
+				if (list.u.parr->arr[i].p > cell.p) {
 					pos = i;
 					break;
 				}
@@ -687,22 +708,8 @@ void LB::b_append(int nargs) {
 
 	TYPECHECK(list, ARRAY);
 
-	if (list.u.farr->_sorted) {
-		if (list.u.farr->arr.empty())
-			list.u.farr->arr.push_back(value);
-		else {
-			uint pos = list.u.farr->arr.size();
-			for (uint i = 0; i < list.u.farr->arr.size(); i++) {
-				if (list.u.farr->arr[i].asInt() > value.asInt()) {
-					pos = i;
-					break;
-				}
-			}
-			list.u.farr->arr.insert_at(pos, value);
-		}
-	} else {
-		list.u.farr->arr.push_back(value);
-	}
+	list.u.farr->arr.push_back(value);
+	list.u.farr->_sorted = false;		// Drop the sorted flag
 }
 
 void LB::b_count(int nargs) {
@@ -813,11 +820,26 @@ void LB::b_findPos(int nargs) {
 	Datum prop = g_lingo->pop();
 	Datum list = g_lingo->pop();
 	Datum d(g_lingo->getVoid());
-	TYPECHECK(list, PARRAY);
+	TYPECHECK2(list, ARRAY, PARRAY);
 
-	int index = LC::compareArrays(LC::eqData, list, prop, true).u.i;
-	if (index > 0) {
-		d = index;
+	if (list.type == ARRAY) {
+		if (list.u.farr->_sorted) {
+			int index = LC::compareArrays(LC::eqData, list, prop, true).u.i;
+			if (index > 0)
+				d = index;
+			else
+				d = 0;
+		} else {
+			if (prop.asInt() > 0 && prop.asInt() <= (int)list.u.farr->arr.size())
+				d = prop.asInt();
+			else
+				d = 0;
+		}
+	} else {
+		int index = LC::compareArrays(LC::eqData, list, prop, true).u.i;
+		if (index > 0) {
+			d = index;
+		}
 	}
 
 	g_lingo->push(d);
@@ -1089,10 +1111,15 @@ void LB::b_max(int nargs) {
 		Datum d = g_lingo->pop();
 		if (d.type == ARRAY) {
 			uint arrsize = d.u.farr->arr.size();
-			for (uint i = 0; i < arrsize; i++) {
-				Datum item = d.u.farr->arr[i];
-				if (i == 0 || item > max) {
-					max = item;
+
+			if (d.u.farr->_sorted && arrsize) {
+				max = d.u.farr->arr[arrsize - 1];
+			} else {
+				for (uint i = 0; i < arrsize; i++) {
+					Datum item = d.u.farr->arr[i];
+					if (i == 0 || item > max) {
+						max = item;
+					}
 				}
 			}
 		} else {
@@ -1122,10 +1149,15 @@ void LB::b_min(int nargs) {
 		Datum d = g_lingo->pop();
 		if (d.type == ARRAY) {
 			uint arrsize = d.u.farr->arr.size();
-			for (uint i = 0; i < arrsize; i++) {
-				Datum item = d.u.farr->arr[i];
-				if (i == 0 || item < min) {
-					min = item;
+
+			if (d.u.farr->_sorted && arrsize) {
+				min = d.u.farr->arr[0];
+			} else {
+				for (uint i = 0; i < arrsize; i++) {
+					Datum item = d.u.farr->arr[i];
+					if (i == 0 || item < min) {
+						min = item;
+					}
 				}
 			}
 		} else {
@@ -1248,7 +1280,7 @@ void LB::b_setProp(int nargs) {
 }
 
 static bool sortArrayHelper(const Datum &lhs, const Datum &rhs) {
-	return lhs.asString() < rhs.asString();
+	return lhs < rhs;
 }
 
 static bool sortNumericArrayHelper(const Datum &lhs, const Datum &rhs) {
@@ -1256,7 +1288,7 @@ static bool sortNumericArrayHelper(const Datum &lhs, const Datum &rhs) {
 }
 
 static bool sortPArrayHelper(const PCell &lhs, const PCell &rhs) {
-	return lhs.p.asString() < rhs.p.asString();
+	return lhs.p < rhs.p;
 }
 
 static bool sortNumericPArrayHelper(const PCell &lhs, const PCell &rhs) {
@@ -1271,6 +1303,9 @@ void LB::b_sort(int nargs) {
 	Datum list = g_lingo->pop();
 
 	if (list.type == ARRAY) {
+		if (list.u.farr->_sorted)
+			return;
+
 		// Check to see if the array is full of numbers
 		bool isNumeric = true;
 		for (const auto &it : list.u.farr->arr) {
@@ -1289,6 +1324,9 @@ void LB::b_sort(int nargs) {
 		list.u.farr->_sorted = true;
 
 	} else if (list.type == PARRAY) {
+		if (list.u.parr->_sorted)
+			return;
+
 		// Check to see if the array is full of numbers
 		bool isNumeric = true;
 		for (const auto &it : list.u.parr->arr) {

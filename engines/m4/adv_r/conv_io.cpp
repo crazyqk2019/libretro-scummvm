@@ -70,7 +70,7 @@ void Converstation_Globals::conv_reset_all() {
 
 /*------------------------------------------------------------------------*/
 
-void cdd_init(void) {
+void cdd_init() {
 	for (int i = 0; i < 16; i++) {
 		_G(cdd).text[i] = nullptr;
 		_G(cdd).snd_files[i] = nullptr;
@@ -279,6 +279,9 @@ void conv_init(Conv *c) {
 			c->exit_now = CONV_NEW; //conv hasn't been run before. only done here once.
 			c->myCNode = 0;
 		}
+		break;
+		
+	default:
 		break;
 	}
 }
@@ -625,8 +628,6 @@ static Conv *conv_restore_state(Conv *c) {
 
 		switch (tag) {
 		case LNODE_CHUNK:
-			break;
-
 		case NODE_CHUNK:
 			break;
 
@@ -720,8 +721,6 @@ static void conv_set_disp_default(void) {
 }
 
 Conv *conv_load(const char *filename, int x1, int y1, int32 myTrigger, bool want_box) {
-	Conv *convers = nullptr;
-	int32 cSize = 0;
 	char fullpathname[MAX_FILENAME_SIZE];
 
 	term_message("conv_load");
@@ -755,20 +754,15 @@ Conv *conv_load(const char *filename, int x1, int y1, int32 myTrigger, bool want
 	if (!fp.exists()) {
 		// Force the file open
 		error_show(FL, 'CNVL', "couldn't conv_load %s", fullpathname);
-		conv_set_handle(nullptr);
-		convers = nullptr;
-		fp.close();
-
-		return nullptr;
 	}
 
-	cSize = fp.size();
+	int32 cSize = fp.size();
 
 	if (conv_get_handle() != nullptr) {
 		conv_unload();
 	}
 
-	convers = new Conv();
+	Conv *convers = new Conv();
 
 	if (!convers) {
 		conv_set_handle(nullptr);
@@ -890,6 +884,9 @@ int conv_get_text(int32 offset, int32 size, Conv *c) {
 				_GC(width) = text_width;
 
 			_G(cdd).num_txt_ents++;
+			break;
+
+		default:
 			break;
 		}
 		i = next;

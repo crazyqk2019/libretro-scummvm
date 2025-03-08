@@ -129,6 +129,7 @@ static const PlainGameDescriptor directorGames[] = {
 	{ "csidarkmotives",		"CSI: Crime Scene Investigation - Dark Motives" },
 	{ "csimiami",			"CSI: Miami" },
 	{ "cutemachine",		"The Cute machine" },
+	{ "cybergrannies",		"Cyber Grannies" },
 	{ "daedalus",			"The Daedalus Encounter" },
 	{ "darkeye",			"The Dark Eye" },
 	{ "dazzeloids",			"Dazzeloids" },
@@ -1000,6 +1001,7 @@ static const PlainGameDescriptor directorGames[] = {
 	{ "sachabenteuer",		"Toggolino Sachabenteuer" },
 	{ "schulerhilfemath1",	"Schülerhilfe Mathe: Klasse 1." },
 	{ "schulerhilfemath2",	"Schülerhilfe Mathe: Klasse 2." },
+	{ "suderhof",			"Geschichten vom Süderhof" },
 	{ "technicus",			"Technicus: Ten Hours Left" },
 	{ "tiefsee",			"S.O.S. Tiefsee" },
 	{ "tkkgkit",			"TKKG: Identikit" },
@@ -6555,6 +6557,9 @@ static const DirectorGameDescription gameDescriptions[] = {
 	MACGAME1("crystalskull",  "", "Crystal Skull", "c148f66ae3511fb88733102aa27efe7e", 719459,  501),
 	WINGAME1t("crystalskull", "", "CRYS32.EXE",	   "3f5fd025e808943e1fa9b91ce63ef9b7", 1410495, 501),
 
+	MACGAME1("cybergrannies", "", "Cyber Grannies", "r:231d3041df162be4a0ddd36a74eb03b6", 719337, 501),
+	WINGAME1("cybergrannies", "", "GRANNIES.EXE", "t:2bbebcd580ab1c80f4488d1d2bd0ddbb", 3281215, 501),
+
 	MACGAME1f_l("darlun", "", "DARLUN", "4bc4f93f5c5169de9f2fee12071a68b9", 717372, Common::JA_JPN, 501, GF_32BPP),
 	WINGAME1tf_l("darlun", "", "DARLUN_P.EXE", "713a7ef3728ed1952745d204e520972a", 1440286, Common::JA_JPN, 501, GF_32BPP),
 
@@ -7599,6 +7604,12 @@ static const DirectorGameDescription gameDescriptions[] = {
 	MACGAME1("staytooned", "", "Power Mac Stay Tooned!", "r:d692140f81aaf86096538f66d6477404",   94045, 500),
 	WINGAME2("staytooned", "", "WIN95/START32.EXE",		 "t:32c18644025e9d2560d002f5a8024216", 1394421,
 							   "TOONED/PROJECT.DXR",	 "f:6490c4706e8b72b61c01a7eb1a39a96c", 2828130, 500),
+
+	MACGAME1_l("suderhof", "", "xn--PowerMac Sderhof_16bit-1lc", "r:c3e6e8e81d425957a49b0c6a97f0ffb0", 107863, Common::DE_DEU, 501),
+	WINGAME2_l("suderhof", "Win 3.1", "STARTW31.EXE",	   "t:ce222c38f57a2f73d60d5330e8356d09",  932281,
+									  "MEDIA/02AHEFT.DXR", "f:d65ebe48689bae17035de773595f6383", 1319598, Common::DE_DEU, 501),
+	WINGAME2_l("suderhof", "Win 95",  "STARTW95.EXE",	   "t:12038763eff6eb54111fb1e088a1ed61", 1410443,
+									  "MEDIA/02AHEFT.DXR", "f:d65ebe48689bae17035de773595f6383", 1319598, Common::DE_DEU, 501),
 
 	MACGAME2("takeru",   "Chapter 1", "Takeru",			    "rt:868ebe3bbcf766408e7009525c78a97c", 719033,
 									  "module_1/menu.Dxr",  "d:7fc6068c9ca58ef2f24028b817532c8d", 3024232, 501),

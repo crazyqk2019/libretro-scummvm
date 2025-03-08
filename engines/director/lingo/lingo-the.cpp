@@ -1475,7 +1475,7 @@ Datum Lingo::getTheSprite(Datum &id1, int field) {
 		d = (int)g_director->transformColor(sprite->_backColor);
 		break;
 	case kTheBlend:
-		d = (255 - sprite->_blendAmount) * 255 / 100;
+		d = (255 - sprite->_blendAmount) * 100 / 255;
 		break;
 	case kTheBottom:
 		d = channel->getBbox().bottom;
@@ -1708,7 +1708,9 @@ void Lingo::setTheSprite(Datum &id1, int field, Datum &d) {
 				}
 			}
 
-			if (castId != sprite->_castId) {
+			// Since Digital Video dimensions get clarified after loading,
+			// we enforce them here
+			if (castId != sprite->_castId || (castMember && castMember->_type == kCastDigitalVideo)) {
 				if (!sprite->_trails) {
 					movie->getWindow()->addDirtyRect(channel->getBbox());
 					channel->_dirty = true;

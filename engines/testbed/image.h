@@ -19,33 +19,36 @@
  *
  */
 
-#ifndef MEDIASTATION_SUBFILE_H
-#define MEDIASTATION_SUBFILE_H
+#ifndef TESTBED_IMAGE_H
+#define TESTBED_IMAGE_H
 
-#include "common/stream.h"
+#include "testbed/testsuite.h"
 
-#include "mediastation/chunk.h"
+namespace Testbed {
 
-namespace MediaStation {
-
-class Subfile {
+class ImageTestSuite : public Testsuite {
 public:
-	Chunk _rootChunk;
-	Chunk _currentChunk;
+	/**
+	 * The constructor for the XXXTestSuite
+	 * For every test to be executed one must:
+	 * 1) Create a function that would invoke the test
+	 * 2) Add that test to list by executing addTest()
+	 *
+	 * @see addTest()
+	 */
+	ImageTestSuite();
+	~ImageTestSuite() override {}
+	const char *getName() const override {
+		return "Image";
+	}
 
-	Subfile();
-	Subfile(Common::SeekableReadStream *stream);
-
-	Chunk nextChunk();
-	bool atEnd();
-
-	uint32 _rate;
-
-private:
-	Common::SeekableReadStream *_stream;
+	const char *getDescription() const override {
+		return "Image decoders";
+	}
 
 };
 
-} // End of namespace MediaStation
 
-#endif
+} // End of namespace Testbed
+
+#endif // TESTBED_IMAGE_H

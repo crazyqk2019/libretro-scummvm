@@ -32,6 +32,7 @@
 #include "freescape/language/8bitDetokeniser.h"
 #include "freescape/objects/sensor.h"
 #include "freescape/sweepAABB.h"
+#include "freescape/doodle.h"
 
 namespace Freescape {
 
@@ -526,7 +527,7 @@ void FreescapeEngine::processInput() {
 			if (event.type == Common::EVENT_SCREEN_CHANGED)
 				; // Allow event
 			else if (_gameStateControl == kFreescapeGameStateEnd
-						&& (event.type == Common::EVENT_KEYDOWN || event.type == Common::EVENT_CUSTOM_ENGINE_ACTION_START)) {
+			         && (event.type == Common::EVENT_KEYDOWN || event.type == Common::EVENT_CUSTOM_ENGINE_ACTION_START)) {
 				_endGameKeyPressed = true;
 				continue;
 			} else if (event.type == Common::EVENT_CUSTOM_ENGINE_ACTION_START && event.customType == kActionEscape)
@@ -641,7 +642,7 @@ void FreescapeEngine::processInput() {
 
 				_eventManager->purgeMouseEvents();
 				rotate(event.relMouse.x * _mouseSensitivity, event.relMouse.y * _mouseSensitivity);
-			}			
+			}
 			break;
 
 		case Common::EVENT_LBUTTONDOWN:
@@ -867,7 +868,7 @@ bool FreescapeEngine::checkIfGameEnded() {
 		if (!_noShieldMessage.empty())
 			insertTemporaryMessage(_noShieldMessage, _countdown - 2);
 		_gameStateControl = kFreescapeGameStateEnd;
-	} else if (_gameStateVars[k8bitVariableEnergy] == 0) {
+	} else if (_gameStateVars[k8bitVariableEnergy] == 0 && isDriller()) {
 		playSound(_soundIndexNoEnergy, true);
 
 		if (!_noEnergyMessage.empty())
@@ -998,9 +999,9 @@ bool FreescapeEngine::hasFeature(EngineFeature f) const {
 	// The TinyGL renderer does not support arbitrary resolutions for now
 	bool softRenderer = determinateRenderType() == Graphics::kRendererTypeTinyGL;
 	return (f == kSupportsReturnToLauncher) ||
-		   (f == kSupportsLoadingDuringRuntime) ||
-		   (f == kSupportsSavingDuringRuntime) ||
-		   (f == kSupportsArbitraryResolutions && !softRenderer);
+	       (f == kSupportsLoadingDuringRuntime) ||
+	       (f == kSupportsSavingDuringRuntime) ||
+	       (f == kSupportsArbitraryResolutions && !softRenderer);
 }
 
 Common::Error FreescapeEngine::loadGameStream(Common::SeekableReadStream *stream) {
@@ -1126,6 +1127,16 @@ Graphics::ManagedSurface *FreescapeEngine::loadAndConvertNeoImage(Common::Seekab
 	surface->convertToInPlace(_gfx->_currentPixelFormat, decoder.getPalette(), decoder.getPaletteColorCount());
 	return surface;
 }
+
+Graphics::ManagedSurface *FreescapeEngine::loadAndConvertDoodleImage(Common::SeekableReadStream *bitmap, Common::SeekableReadStream *color1, Common::SeekableReadStream *color2, byte *palette) {
+	Image::DoodleDecoder decoder(palette);
+	decoder.loadStreams(*bitmap, *color1, *color2);
+	Graphics::ManagedSurface *surface = new Graphics::ManagedSurface();
+	surface->copyFrom(*decoder.getSurface());
+	surface->convertToInPlace(_gfx->_currentPixelFormat, decoder.getPalette(), decoder.getPaletteColorCount());
+	return surface;
+}
+
 
 Graphics::ManagedSurface *FreescapeEngine::loadAndCenterScrImage(Common::SeekableReadStream *stream) {
 	Image::ScrDecoder decoder;

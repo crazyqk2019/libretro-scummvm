@@ -257,16 +257,14 @@ bool Scene::readOpList(Common::SeekableReadStream *s, Common::Array<SceneOp> &li
 }
 
 
-bool Scene::readDialogList(Common::SeekableReadStream *s, Common::Array<Dialog> &list, int16 filenum /* = 0 */) const {
+bool Scene::readDialogList(Common::SeekableReadStream *s, Common::List<Dialog> &list, int16 filenum /* = 0 */) const {
 	// Some data on this format here https://www.oldgamesitalia.net/forum/index.php?showtopic=24055&st=25&p=359214&#entry359214
 
 	uint16 nitems = s->readUint16LE();
 	_checkListNotTooLong(nitems, "dialogs");
-	uint startsize = list.size();
-	list.resize(startsize + nitems);
 
-	for (uint i = startsize; i < list.size(); i++) {
-		Dialog &dst = list[i];
+	for (uint i = 0; i < nitems; i++) {
+		Dialog dst;
 		dst._num = s->readUint16LE();
 		dst._fileNum = filenum;
 		dst._rect.x = s->readUint16LE();
@@ -324,6 +322,7 @@ bool Scene::readDialogList(Common::SeekableReadStream *s, Common::Array<Dialog> 
 			else
 				dst._fontColor = dst._fontColor ^ 8;
 		}
+		list.push_back(dst);
 	}
 
 	return !s->err();
@@ -728,8 +727,9 @@ void SDSScene::loadDialogData(uint16 fileNum) {
 	if (_dialogs.size() != prevSize) {
 		debug(10, "Read %d dialogs from DDS %s (ver %s id '%s'):", _dialogs.size() - prevSize,
 			filename.c_str(), fileVersion.c_str(), fileId.c_str());
-		for (uint i = prevSize; i < _dialogs.size(); i++)
-			debug(10, "%s", _dialogs[i].dump("").c_str());
+		for (const auto &dlg: _dialogs)
+			if (dlg._fileNum == fileNum)
+				debug(10, "%s", dlg.dump("").c_str());
 	}
 
 	if (!result)
@@ -746,11 +746,9 @@ void SDSScene::freeDialogData(uint16 fileNum) {
 	if (!fileNum)
 		return;
 
-	for (int i = 0; i < (int)_dialogs.size(); i++) {
-		if (_dialogs[i]._fileNum == fileNum) {
-			_dialogs.remove_at(i);
-			i--;
-		}
+	for (Common::List<Dialog>::iterator iter = _dialogs.begin(); iter != _dialogs.end(); iter++) {
+		if (iter->_fileNum == fileNum)
+			iter = _dialogs.erase(iter);
 	}
 }
 
@@ -777,7 +775,8 @@ bool SDSScene::readTalkData(Common::SeekableReadStream *s, TalkData &dst) {
 					h._shape.reset(new Image(resMan, engine->getDecompressor()));
 					h._shape->loadBitmap(h._bmpFile);
 				} else {
-					warning("Couldn't load talkdata %d head %d BMP: %s", dst._num, h._num, h._bmpFile.c_str());
+					// This is the default situation in Willy Beamish CD
+					debug("Couldn't load talkdata %d head %d BMP: %s", dst._num, h._num, h._bmpFile.c_str());
 				}
 			}
 		}
@@ -1156,7 +1155,7 @@ bool SDSScene::drawAndUpdateDialogs(Graphics::ManagedSurface *dst) {
 				if (dlg._time)
 					delay = dlg._time;
 
-				int time = delay * (9 - engine->getTextSpeed());
+				int time = delay * 2 * (9 - engine->getTextSpeed());
 				assert(dlg._state);
 
 				dlg._state->_hideTime = DgdsEngine::getInstance()->getThisFrameMs() + time;
@@ -1453,6 +1452,8 @@ void SDSScene::mouseRDown(const Common::Point &pt) {
 		return;
 	}
 	_rbuttonDown = true;
+	// Ensure mouse cursor is updated
+	mouseMoved(pt);
 }
 
 void SDSScene::mouseRUp(const Common::Point &pt) {
@@ -1959,8 +1960,12 @@ Common::String GDSScene::dump(const Common::String &indent) const {
 }
 
 void GDSScene::globalOps(const Common::Array<uint16> &args) {
-	if (!args.size())
-		error("GDSScene::globalOps: Empty arg list");
+	if (!args.size()) {
+		// This happens in Willy Beamish CD version when vacuuming
+		// up the babysitter (D50.DDS, dialog num 54)
+		warning("GDSScene::globalOps: Empty arg list");
+		return;
+	}
 
 	// The arg list should be a first value giving the count of operations,
 	// then 3 values for each op (num, opcode, val).
@@ -2051,13 +2056,6 @@ void GDSScene::drawItems(Graphics::ManagedSurface &surf) {
 		if (item._inSceneNum == currentScene && &item != engine->getScene()->getDragItem()) {
 			if (!(item._flags & kItemStateDragging)) {
 				// Dropped item.
-				// Update the rect for the icon - Note: original doesn't do this,
-				// but then the napent icon is offset??
-				/*Common::SharedPtr<Graphics::ManagedSurface> icon = icons->getSurface(item._iconNum);
-				if (icon) {
-					item._rect.width = MIN((int)icon->w, item._rect.width);
-					item._rect.height = MIN((int)icon->h, item._rect.height);
-				}*/
 				if (xoff + item._rect.width > maxx)
 					xoff = 20;
 				int yoff = SCREEN_HEIGHT - (item._rect.height + 2);

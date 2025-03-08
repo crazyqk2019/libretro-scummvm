@@ -414,10 +414,14 @@ void TinyGLRenderer::renderFace(const Common::Array<Math::Vector3d> &vertices) {
 		tglDepthMask(TGL_FALSE);
 
 		tglBegin(TGL_QUADS);
-		tglTexCoord2f(0.0f, 0.0f); tglVertex2f(0.0f, 0.0f);
-		tglTexCoord2f(1.0, 0.0f); tglVertex2f(1.0, 0.0f);
-		tglTexCoord2f(1.0, 1.0); tglVertex2f(1.0, 1.0);
-		tglTexCoord2f(0.0f, 1.0); tglVertex2f(0.0f, 1.0);
+		tglTexCoord2f(0.0f, 0.0f);
+		tglVertex2f(0.0f, 0.0f);
+		tglTexCoord2f(1.0, 0.0f);
+		tglVertex2f(1.0, 0.0f);
+		tglTexCoord2f(1.0, 1.0);
+		tglVertex2f(1.0, 1.0);
+		tglTexCoord2f(0.0f, 1.0);
+		tglVertex2f(0.0f, 1.0);
 		tglEnd();
 
 		tglDepthMask(TGL_TRUE);
@@ -436,12 +440,12 @@ void TinyGLRenderer::renderFace(const Common::Array<Math::Vector3d> &vertices) {
 }
 
 void TinyGLRenderer::drawCelestialBody(Math::Vector3d position, float radius, byte color) {
-	/*uint8 r1, g1, b1, r2, g2, b2;
+	uint8 r1, g1, b1, r2, g2, b2;
 	byte *stipple = nullptr;
 	getRGBAt(color, 0, r1, g1, b1, r2, g2, b2, stipple);
 
 	int triangleAmount = 20;
-	float twicePi = (float)(2.0 * M_PI);*/
+	float twicePi = (float)(2.0 * M_PI);
 
 	// Quick billboard effect inspired from this code:
 	// http://www.lighthouse3d.com/opengl/billboarding/index.php?billCheat
@@ -460,7 +464,7 @@ void TinyGLRenderer::drawCelestialBody(Math::Vector3d position, float radius, by
 		}
 
 	glLoadMatrixf(m);*/
-	/*tglDisable(TGL_DEPTH_TEST);
+	tglDisable(TGL_DEPTH_TEST);
 	tglDepthMask(TGL_FALSE);
 
 	setStippleData(stipple);
@@ -470,11 +474,11 @@ void TinyGLRenderer::drawCelestialBody(Math::Vector3d position, float radius, by
 	copyToVertexArray(0, position);
 	float adj = 1.25; // Perspective correction
 
-	for(int i = 0; i <= triangleAmount; i++) {
+	for (int i = 0; i <= triangleAmount; i++) {
 		copyToVertexArray(i + 1,
-			Math::Vector3d(position.x(), position.y() + (radius * cos(i *  twicePi / triangleAmount)),
-						position.z() + (adj * radius * sin(i * twicePi / triangleAmount)))
-		);
+		                  Math::Vector3d(position.x(), position.y() + (radius * cos(i *  twicePi / triangleAmount)),
+		                                 position.z() + (adj * radius * sin(i * twicePi / triangleAmount)))
+		                 );
 	}
 
 	tglVertexPointer(3, TGL_FLOAT, 0, _verts);
@@ -488,11 +492,11 @@ void TinyGLRenderer::drawCelestialBody(Math::Vector3d position, float radius, by
 		tglEnableClientState(TGL_VERTEX_ARRAY);
 		copyToVertexArray(0, position);
 
-		for(int i = 0; i <= triangleAmount; i++) {
+		for (int i = 0; i <= triangleAmount; i++) {
 			copyToVertexArray(i + 1,
-				Math::Vector3d(position.x(), position.y() + (radius * cos(i *  twicePi / triangleAmount)),
-							position.z() + (adj * radius * sin(i * twicePi / triangleAmount)))
-			);
+			                  Math::Vector3d(position.x(), position.y() + (radius * cos(i *  twicePi / triangleAmount)),
+			                                 position.z() + (adj * radius * sin(i * twicePi / triangleAmount)))
+			                 );
 		}
 
 		tglVertexPointer(3, TGL_FLOAT, 0, _verts);
@@ -504,7 +508,7 @@ void TinyGLRenderer::drawCelestialBody(Math::Vector3d position, float radius, by
 
 	tglEnable(TGL_DEPTH_TEST);
 	tglDepthMask(TGL_TRUE);
-	//tglPopMatrix();*/
+	//tglPopMatrix();
 }
 
 void TinyGLRenderer::depthTesting(bool enabled) {
@@ -601,7 +605,7 @@ void TinyGLRenderer::flipBuffer() {
 	if (!dirtyAreas.empty()) {
 		for (auto &it : dirtyAreas) {
 			g_system->copyRectToScreen(glBuffer.getBasePtr(it.left, it.top), glBuffer.pitch,
-									   it.left, it.top, it.width(), it.height());
+			                           it.left, it.top, it.width(), it.height());
 		}
 	}
 }

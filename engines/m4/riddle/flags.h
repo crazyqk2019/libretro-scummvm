@@ -90,7 +90,7 @@ enum Flag {
 	V055 =  55,
 	V056 =  56,
 	V057 =  57,
-	V058 =  58,
+	V058 =  58, // Room 207 - 0 = Wheel ; 1 = Wheel broken down to pieces
 	V059 =  59,
 	V060 =  60,
 	V061 =  61,
@@ -147,9 +147,9 @@ enum Flag {
 	V111 = 111,
 	V112 = 112,
 	V113 = 113,
-	V114 = 114,
+	V114 = 114, // Give marks to Wolf, room 402
 	V115 = 115,
-	V116 = 116,
+	V116 = 116, // Try to give to Wolf a foreign currency, room 402
 	V117 = 117,
 	V118 = 118,
 	V119 = 119,

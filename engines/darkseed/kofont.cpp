@@ -263,6 +263,7 @@ Common::U32String KoFont::getLocationString(const Common::U32String &object) {
 	if (isConsonant(object[object.size() - 1])) {
 		return object + convertToU32String("\xb7\x61", Common::KO_KOR); // -eu
 	}
+	return object;
 }
 
 int KoFont::getOtherCharIdx(uint32 chr) const {
@@ -306,7 +307,5 @@ void KoFont::drawChar(Graphics::Surface *dst, uint32 chr, int x, int y, uint32 c
 	createGlyph(pixels, chr);
 	g_engine->_screen->copyRectToSurfaceWithKey(pixels, 16, x, y - 2, 16, 16,0xf);
 }
-
-
 
 } // namespace Darkseed

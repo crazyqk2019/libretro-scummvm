@@ -49,6 +49,7 @@ DarkseedEngine::DarkseedEngine(OSystem *syst, const ADGameDescription *gameDesc)
 DarkseedEngine::~DarkseedEngine() {
 	delete _screen;
 	delete _sound;
+	delete _menu;
 }
 
 uint32 DarkseedEngine::getFeatures() const {
@@ -80,6 +81,7 @@ Common::Error DarkseedEngine::run() {
 	_tosText->load();
 	_objectVar.loadObjectNames();
 	_console = new Console(_tosText, _sound);
+	_menu = new Menu();
 	_player = new Player();
 	_useCode = new UseCode(_console, _player, _objectVar, _inventory);
 	_animation = new Animation(_player, _objectVar);
@@ -1933,7 +1935,13 @@ void DarkseedEngine::lookCode(int objNum) {
 void DarkseedEngine::printTime() {
 	_console->printTosText(958);
 	int hour = g_engine->_currentTimeInSeconds / 60 / 60 + 1;
-	_console->addToCurrentLine(Common::String::format("%d: %02d %s", hour % 12, (g_engine->_currentTimeInSeconds / 60) % 60, hour < 12 ? "a.m." : "p.m."));
+
+	if (g_engine->getLanguage() == Common::ZH_ANY) {
+		_console->addToCurrentLineU32(convertToU32String(hour < 12 ? "\xa4\x57\xa4\xc8" : "\xa4\x55\xa4\xc8", Common::ZH_ANY));
+		_console->addToCurrentLine(Common::String::format("%d:%02d", hour % 12, (g_engine->_currentTimeInSeconds / 60) % 60));
+	} else {
+		_console->addToCurrentLine(Common::String::format("%d: %02d %s", hour % 12, (g_engine->_currentTimeInSeconds / 60) % 60, hour < 12 ? "a.m." : "p.m."));
+	}
 }
 
 void DarkseedEngine::showFullscreenPic(const Common::Path &filename) {
