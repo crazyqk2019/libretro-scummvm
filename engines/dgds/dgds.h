@@ -28,13 +28,10 @@
 #include "common/random.h"
 #include "common/serializer.h"
 
-#include "graphics/surface.h"
 #include "graphics/managed_surface.h"
 
 #include "engines/advancedDetector.h"
 #include "engines/engine.h"
-
-#include "gui/debugger.h"
 
 #include "dgds/resource.h"
 #include "dgds/clock.h"
@@ -287,7 +284,7 @@ public:
 	void setDebugShowHotAreas(bool enable) { _debugShowHotAreas = enable; }
 	bool getDebugShowHotAreas() const { return _debugShowHotAreas; }
 
-	static void dumpFrame(const Graphics::ManagedSurface &surf, const char *name);
+	static void dumpFrame(const Graphics::Surface &surf, const char *name);
 
 	void dimPalForWillyDialog(bool force);
 

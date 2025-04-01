@@ -23,7 +23,6 @@
 #include "common/config-manager.h"
 #include "common/file.h"
 #include "common/memstream.h"
-#include "common/system.h"
 
 #include "dgds/sound/resource/sci_resource.h"
 #include "dgds/dgds.h"
@@ -50,7 +49,7 @@ SciResource *getMidiPatchData(int num) {
 	ResourceManager *resource = engine->getResourceManager();
 	Decompressor *decomp = engine->getDecompressor();
 	ResourceManager *fddMgr = nullptr;
-	Common::SeekableReadStream *ovlStream;
+	Common::SeekableReadStream *ovlStream = nullptr;
 
 	int resNum = 0;
 	for (; resNum < ARRAYSIZE(PATCH_RESOURCES); resNum++) {

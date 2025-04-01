@@ -222,7 +222,7 @@ enum Flag {
 	V186 = 186,
 	V187 = 187,
 	V188 = 188,
-	V189 = 189,
+	V189 = 189, // Room 604: 2= wire connected to pull 3= Also connected to the plug
 	V190 = 190,
 	V191 = 191,
 	V192 = 192,
@@ -352,7 +352,7 @@ enum Flag {
 	V314 = 314,
 	V315 = 315,
 	kCrackedMirror = 316,
-	V317 = 317,
+	V317 = 317, // Look at the game cabinet for the first time after opening it, room 406
 	V318 = 318,
 	V319 = 319,
 	V320 = 320,

@@ -50,7 +50,7 @@ enum Opcode {
 	kOpcodeDivide = 216,
 	kOpcodeModulo = 217,
 	kOpcodeNegate = 218,
-	kOpcodeCallRoutine = 219,
+	kOpcodeCallFunction = 219,
 	kOpcodeCallMethod = 220,
 	// This seems to appear at the start of a function to declare the number of
 	// local variables used in the function. It seems to be the `Declare`
@@ -60,7 +60,8 @@ enum Opcode {
 	kOpcodeDeclareVariables = 221,
 	kOpcodeWhile = 224,
 	kOpcodeReturn = 222,
-	kOpcodeUnk1 = 223
+	kOpcodeUnk1 = 223,
+	kOpcodeCallFunctionInVariable = 225
 };
 const char *opcodeToStr(Opcode opcode);
 
@@ -72,6 +73,7 @@ enum VariableScope {
 const char *variableScopeToStr(VariableScope scope);
 
 enum BuiltInFunction {
+	kUnk1Function = 10,
 	// TODO: Figure out if effectTransitionOnSync = 13 is consistent across titles?
 	kEffectTransitionFunction = 12, // PARAMS: 1
 	kEffectTransitionOnSyncFunction = 13,
@@ -96,6 +98,7 @@ enum BuiltInMethod {
 	kTimeStopMethod = 207, // PARAMS: 0
 	kIsPlayingMethod = 372, // PARAMS: 0
 	kSetDissolveFactorMethod = 241, // PARAMS: 1
+	kSpatialCenterMoveToMethod = 230,
 
 	// HOTSPOT METHODS.
 	kMouseActivateMethod = 210, // PARAMS: 1
@@ -113,6 +116,7 @@ enum BuiltInMethod {
 
 	// SPRITE METHODS.
 	kMovieResetMethod = 219, // PARAMS: 0
+	kSetSpriteFrameByIdMethod = 220, // PARAMS: 1
 	kSetCurrentClipMethod = 221, // PARAMS: 0-1
 
 	// STAGE METHODS.
@@ -247,8 +251,9 @@ enum OperandType {
 	kOperandTypeDollarSignVariable = 155,
 	kOperandTypeAssetId = 156,
 	kOperandTypeVariableDeclaration = 158,
-	kOperandTypeCollection = 159,
-	kOperandTypeFunction = 160
+	kOperandTypeFunction = 159,
+	kOperandTypeMethod = 160,
+	kOperandTypeCollection = 161
 };
 const char *operandTypeToStr(OperandType type);
 
@@ -256,6 +261,7 @@ enum VariableType {
 	// This is an invalid type used for initialization only.
 	kVariableTypeEmpty = 0x0000,
 
+	kVariableTypeFunction = 0x0008,
 	kVariableTypeCollection = 0x0007,
 	kVariableTypeString = 0x0006,
 	kVariableTypeAssetId = 0x0005,

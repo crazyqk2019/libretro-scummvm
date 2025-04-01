@@ -22,7 +22,6 @@
 #ifndef DGDS_SCENE_H
 #define DGDS_SCENE_H
 
-#include "common/stream.h"
 #include "common/array.h"
 #include "common/serializer.h"
 
@@ -54,9 +53,9 @@ public:
 	uint16 _objInteractionRectNum;
 
 	Common::Array<SceneConditions> enableConditions;
-	Common::Array<SceneOp> onRClickOps;
-	Common::Array<SceneOp> onLDownOps;
-	Common::Array<SceneOp> onLClickOps;
+	Common::Array<SceneOp> onLookOps;
+	Common::Array<SceneOp> onPickUpOps;
+	Common::Array<SceneOp> onUseOps;
 
 	virtual ~HotArea() {}
 
@@ -289,7 +288,7 @@ public:
 	bool drawAndUpdateDialogs(Graphics::ManagedSurface *dst);
 	bool checkForClearedDialogs();
 
-	void mouseMoved(const Common::Point &pt);
+	void mouseUpdate(const Common::Point &pt);
 	void mouseLDown(const Common::Point &pt);
 	void mouseLUp(const Common::Point &pt);
 	void mouseRDown(const Common::Point &pt);
@@ -348,7 +347,12 @@ protected:
 private:
 	Dialog *getVisibleDialog();
 	bool readTalkData(Common::SeekableReadStream *s, TalkData &dst);
+	void leftButtonAction(const HotArea *area);
+	void bothButtonAction(const Common::Point &pt);
 	void rightButtonAction(const Common::Point &pt);
+
+	void doPickUp(HotArea *area);
+	void doLook(const HotArea *area);
 
 	int _num;
 	Common::Array<SceneOp> _enterSceneOps;
@@ -367,7 +371,11 @@ private:
 	Common::Array<TalkData> _talkData;
 
 	// From here on is mutable stuff that might need saving
+
+	// Dialogs must be in List, not Array - they can be dynamically added
+	// from another dialog, so pointers need to stay valid while adding more.
 	Common::List<Dialog> _dialogs;
+
 	Common::Array<SceneTrigger> _triggers;
 	Conversation _conversation;
 
@@ -377,6 +385,9 @@ private:
 	bool _lbuttonDown;
 	bool _rbuttonDown;
 	bool _lbuttonDownWithDrag;
+
+	HotArea *_mouseDownArea;
+	int _mouseDownCounter;
 
 	/// Only changes in beamish - toggle between use (0), look (1) and target (2)
 	int16 _lookMode;

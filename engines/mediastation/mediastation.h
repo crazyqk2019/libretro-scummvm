@@ -89,11 +89,14 @@ public:
 	Operand callMethod(BuiltInMethod methodId, Common::Array<Operand> &args);
 	Operand callBuiltInFunction(BuiltInFunction function, Common::Array<Operand> &args);
 	Common::HashMap<uint32, Variable *> _variables;
+	Common::RandomSource _randomSource;
 
 	Graphics::Screen *_screen = nullptr;
 	Context *_currentContext = nullptr;
 
+	Common::Point _mousePos;
 	Common::Array<Common::Rect> _dirtyRects;
+	bool _needsHotspotRefresh = false;
 
 	// All Media Station titles run at 640x480.
 	const uint16 SCREEN_WIDTH = 640;
@@ -106,7 +109,6 @@ private:
 	Common::Event _event;
 	Common::FSNode _gameDataDir;
 	const ADGameDescription *_gameDescription;
-	Common::RandomSource _randomSource;
 
 	// In Media Station, only the cursors are stored in the executable; everything
 	// else is in the Context (*.CXT) data files.
@@ -119,12 +121,13 @@ private:
 	Asset *_currentHotspot = nullptr;
 
 	uint _requestedScreenBranchId = 0;
+	Common::Array<uint> _requestedContextReleaseId;
 	void doBranchToScreen();
 
 	Context *loadContext(uint32 contextId);
 	void setPaletteFromHeader(AssetHeader *header);
 	void releaseContext(uint32 contextId);
-	Asset *findAssetToAcceptMouseEvents(Common::Point point);
+	Asset *findAssetToAcceptMouseEvents();
 
 	void effectTransition(Common::Array<Operand> &args);
 };

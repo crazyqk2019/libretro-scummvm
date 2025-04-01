@@ -159,6 +159,13 @@ Common::Error MediaStationEngine::run() {
 			break;
 		}
 
+		if (!_requestedContextReleaseId.empty()) {
+			for (uint contextId : _requestedContextReleaseId) {
+				releaseContext(contextId);
+			}
+			_requestedContextReleaseId.clear();
+		}
+
 		debugC(5, kDebugGraphics, "***** START SCREEN UPDATE ***");
 		for (auto it = _assetsPlaying.begin(); it != _assetsPlaying.end();) {
 			(*it)->process();
@@ -169,6 +176,11 @@ Common::Error MediaStationEngine::run() {
 				doBranchToScreen();
 				_requestedScreenBranchId = 0;
 				break;
+			}
+
+			if (_needsHotspotRefresh) {
+				refreshActiveHotspot();
+				_needsHotspotRefresh = false;
 			}
 
 			if (!(*it)->isActive()) {
@@ -200,14 +212,14 @@ void MediaStationEngine::processEvents() {
 		}
 
 		case Common::EVENT_MOUSEMOVE: {
-			refreshActiveHotspot();
+			_mousePos = g_system->getEventManager()->getMousePos();
+			_needsHotspotRefresh = true;
 			break;
 		}
 
 		case Common::EVENT_KEYDOWN: {
 			// Even though this is a keydown event, we need to look at the mouse position.
-			Common::Point mousePos = g_system->getEventManager()->getMousePos();
-			Asset *hotspot = findAssetToAcceptMouseEvents(mousePos);
+			Asset *hotspot = findAssetToAcceptMouseEvents();
 			if (hotspot != nullptr) {
 				debugC(1, kDebugEvents, "EVENT_KEYDOWN (%d): Sent to hotspot %d", _event.kbd.ascii, hotspot->getHeader()->_id);
 				hotspot->runKeyDownEventHandlerIfExists(_event.kbd);
@@ -216,9 +228,9 @@ void MediaStationEngine::processEvents() {
 		}
 
 		case Common::EVENT_LBUTTONDOWN: {
-			Asset *hotspot = findAssetToAcceptMouseEvents(_event.mouse);
+			Asset *hotspot = findAssetToAcceptMouseEvents();
 			if (hotspot != nullptr) {
-				debugC(1, kDebugEvents, "EVENT_LBUTTONDOWN (%d, %d): Sent to hotspot %d", _event.mouse.x, _event.mouse.y, hotspot->getHeader()->_id);
+				debugC(1, kDebugEvents, "EVENT_LBUTTONDOWN (%d, %d): Sent to hotspot %d", _mousePos.x, _mousePos.y, hotspot->getHeader()->_id);
 				hotspot->runEventHandlerIfExists(kMouseDownEvent);
 			}
 			break;
@@ -252,15 +264,15 @@ void MediaStationEngine::setCursor(uint id) {
 }
 
 void MediaStationEngine::refreshActiveHotspot() {
-	Asset *hotspot = findAssetToAcceptMouseEvents(_eventMan->getMousePos());
+	Asset *hotspot = findAssetToAcceptMouseEvents();
 	if (hotspot != _currentHotspot) {
 		if (_currentHotspot != nullptr) {
 			_currentHotspot->runEventHandlerIfExists(kMouseExitedEvent);
-			debugC(5, kDebugEvents, "EVENT_MOUSEMOVE (%d, %d): Exited hotspot %d", _event.mouse.x, _event.mouse.y, _currentHotspot->getHeader()->_id);
+			debugC(5, kDebugEvents, "refreshActiveHotspot(): (%d, %d): Exited hotspot %d", _mousePos.x, _mousePos.y, _currentHotspot->getHeader()->_id);
 		}
 		_currentHotspot = hotspot;
 		if (hotspot != nullptr) {
-			debugC(5, kDebugEvents, "EVENT_MOUSEMOVE (%d, %d): Entered hotspot %d", _event.mouse.x, _event.mouse.y, hotspot->getHeader()->_id);
+			debugC(5, kDebugEvents, "refreshActiveHotspot(): (%d, %d): Entered hotspot %d", _mousePos.x, _mousePos.y, hotspot->getHeader()->_id);
 			setCursor(hotspot->getHeader()->_cursorResourceId);
 			hotspot->runEventHandlerIfExists(kMouseEnteredEvent);
 		} else {
@@ -270,7 +282,7 @@ void MediaStationEngine::refreshActiveHotspot() {
 	}
 
 	if (hotspot != nullptr) {
-		debugC(5, kDebugEvents, "EVENT_MOUSEMOVE (%d, %d): Sent to hotspot %d", _event.mouse.x, _event.mouse.y, hotspot->getHeader()->_id);
+		debugC(5, kDebugEvents, "refreshActiveHotspot(): (%d, %d): Sent to hotspot %d", _mousePos.x, _mousePos.y, hotspot->getHeader()->_id);
 		hotspot->runEventHandlerIfExists(kMouseMovedEvent);
 	}
 }
@@ -398,7 +410,7 @@ Operand MediaStationEngine::callMethod(BuiltInMethod methodId, Common::Array<Ope
 	case kReleaseContextMethod: {
 		assert(args.size() == 1);
 		uint32 contextId = args[0].getAssetId();
-		releaseContext(contextId);
+		_requestedContextReleaseId.push_back(contextId);
 		return Operand();
 	}
 
@@ -447,6 +459,17 @@ void MediaStationEngine::releaseContext(uint32 contextId) {
 		error("MediaStationEngine::releaseContext(): Attempted to unload context %d that is not currently loaded", contextId);
 	}
 
+	// Make sure nothing is still using this context.
+	for (auto it = _loadedContexts.begin(); it != _loadedContexts.end(); ++it) {
+		uint id = it->_key;
+		ContextDeclaration *contextDeclaration = _boot->_contextDeclarations.getValOrDefault(id);
+		for (uint32 childContextId : contextDeclaration->_fileReferences) {
+			if (childContextId == contextId) {
+				return;
+			}
+		}
+	}
+
 	// Unload any assets currently playing from this context. They should have
 	// already been stopped by scripts, but this is a last check.
 	for (auto it = _assetsPlaying.begin(); it != _assetsPlaying.end();) {
@@ -463,7 +486,7 @@ void MediaStationEngine::releaseContext(uint32 contextId) {
 	_loadedContexts.erase(contextId);
 }
 
-Asset *MediaStationEngine::findAssetToAcceptMouseEvents(Common::Point point) {
+Asset *MediaStationEngine::findAssetToAcceptMouseEvents() {
 	Asset *intersectingAsset = nullptr;
 	// The z-indices seem to be reversed, so the highest z-index number is
 	// actually the lowest asset.
@@ -471,7 +494,8 @@ Asset *MediaStationEngine::findAssetToAcceptMouseEvents(Common::Point point) {
 
 	for (Asset *asset : _assetsPlaying) {
 		if (asset->type() == kAssetTypeHotspot) {
-			if (asset->isActive() && static_cast<Hotspot *>(asset)->isInside(point)) {
+			debugC(5, kDebugGraphics, "findAssetToAcceptMouseEvents(): Hotspot %d (z-index %d)", asset->getHeader()->_id, asset->zIndex());
+			if (asset->isActive() && static_cast<Hotspot *>(asset)->isInside(_mousePos)) {
 				if (asset->zIndex() < lowestZIndex) {
 					lowestZIndex = asset->zIndex();
 					intersectingAsset = asset;
@@ -496,6 +520,13 @@ Operand MediaStationEngine::callBuiltInFunction(BuiltInFunction function, Common
 		// call into some drawing functions built into the IBM/Crayola executable.
 		warning("MediaStationEngine::callBuiltInFunction(): Built-in drawing function not implemented");
 		return Operand();
+	}
+
+	case kUnk1Function: {
+		warning("MediaStationEngine::callBuiltInFunction(): Function 10 not implemented");
+		Operand returnValue = Operand(kOperandTypeLiteral1);
+		returnValue.putInteger(1);
+		return returnValue;
 	}
 
 	default:

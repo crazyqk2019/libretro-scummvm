@@ -30,15 +30,12 @@
 #include "audio/mixer.h"
 
 #include "dgds/decompress.h"
+#include "dgds/dgds.h"
 #include "dgds/includes.h"
-#include "dgds/parser.h"
 #include "dgds/resource.h"
 #include "dgds/sound.h"
 #include "dgds/sound/music.h"
 #include "dgds/sound/resource/sci_resource.h"
-
-#include "common/debug.h"
-
 
 namespace Dgds {
 
@@ -702,7 +699,7 @@ void Sound::unloadMusic() {
 	for (auto &data: _musicData)
 		delete [] data._data;
 	_musicData.clear();
-
+	_currentMusic.clear();
 	// Don't unload sfxData.
 }
 

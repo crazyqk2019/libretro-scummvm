@@ -108,7 +108,7 @@ enum AssetHeaderSectionType {
 	// PATH FIELDS.
 	kAssetHeaderStartPoint = 0x060e,
 	kAssetHeaderEndPoint = 0x060f,
-	kAssetHeaderPathUnk1 = 0x0610,
+	kAssetHeaderPathTotalSteps = 0x0610,
 	kAssetHeaderStepRate = 0x0611,
 	kAssetHeaderDuration = 0x0612,
 
@@ -131,7 +131,10 @@ enum AssetHeaderSectionType {
 	kAssetHeaderTextPosition = 0x25f,
 	kAssetHeaderTextUnk1 = 0x262,
 	kAssetHeaderTextUnk2 = 0x263,
-	kAssetHeaderTextCharacterClass = 0x0266
+	kAssetHeaderTextCharacterClass = 0x0266,
+
+	// SPRITE FIELDS.
+	kAssetHeaderSpriteFrameMapping = 0x03e9
 };
 
 enum TextJustification {
@@ -189,6 +192,7 @@ public:
 	uint32 _stageId = 0;
 	SoundEncoding _soundEncoding;
 	uint32 _chunkCount = 0;
+	Common::HashMap<uint32, uint32> _spriteFrameMapping;
 
 	// PATH FIELDS.
 	uint32 _dissolveFactor = 0;
@@ -196,6 +200,7 @@ public:
 	Common::Point *_endPoint = nullptr;
 	uint32 _stepRate = 0;
 	uint32 _duration = 0;
+	uint _totalSteps = 0;
 
 	// EVENT HANDLER FIELDS.
 	Common::HashMap<uint, EventHandler *> _eventHandlers;

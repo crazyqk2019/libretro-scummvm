@@ -27,8 +27,6 @@
 #include "common/file.h"
 #include "common/memstream.h"
 #include "common/platform.h"
-#include "common/str-array.h"
-#include "common/stream.h"
 #include "common/substream.h"
 #include "common/system.h"
 
@@ -36,10 +34,7 @@
 
 #include "graphics/cursorman.h"
 #include "graphics/font.h"
-#include "graphics/fontman.h"
 #include "graphics/managed_surface.h"
-#include "graphics/palette.h"
-#include "graphics/surface.h"
 
 #include "engines/advancedDetector.h"
 #include "engines/util.h"
@@ -59,7 +54,6 @@
 #include "dgds/parser.h"
 #include "dgds/request.h"
 #include "dgds/resource.h"
-#include "dgds/scripts.h"
 #include "dgds/sound.h"
 #include "dgds/game_palettes.h"
 #include "dgds/minigames/dragon_arcade.h"
@@ -501,7 +495,7 @@ void DgdsEngine::loadRestartFile() {
 }
 
 /*static*/ void
-DgdsEngine::dumpFrame(const Graphics::ManagedSurface &surf, const char *name) {
+DgdsEngine::dumpFrame(const Graphics::Surface &surf, const char *name) {
 #ifdef DUMP_FRAME_DATA
 	/* For debugging, dump the frame contents.. */
 	Common::DumpFile outf;
@@ -511,8 +505,7 @@ DgdsEngine::dumpFrame(const Graphics::ManagedSurface &surf, const char *name) {
 	g_system->getPaletteManager()->grabPalette(palbuf, 0, 256);
 
 	outf.open(Common::Path(Common::String::format("/tmp/%07d-%s.png", now, name)));
-	// Operator magic - convert ManagedSurface reg to Surface ref.
-	::Image::writePNG(outf, *(&surf), palbuf);
+	::Image::writePNG(outf, surf, palbuf);
 	outf.close();
 #endif
 }
@@ -599,9 +592,7 @@ void DgdsEngine::pumpMessages() {
 }
 
 void DgdsEngine::dimPalForWillyDialog(bool force) {
-	WillyGlobals *globals = static_cast<WillyGlobals *>(_gameGlobals);
-	int16 fade = globals->getPalFade();
-	fade = CLIP(fade, (int16)0, (int16)255);
+	int16 fade;
 
 	// TODO: Same constants are in globals.cpp
 	static const int FADE_STARTCOL = 0x40;
@@ -718,9 +709,6 @@ Common::Error DgdsEngine::run() {
 
 			if (_inventory->isOpen()) {
 				switch (_lastMouseEvent) {
-				case Common::EVENT_MOUSEMOVE:
-					_inventory->mouseMoved(_lastMouse);
-					break;
 				case Common::EVENT_LBUTTONDOWN:
 					_inventory->mouseLDown(_lastMouse);
 					break;
@@ -730,14 +718,13 @@ Common::Error DgdsEngine::run() {
 				case Common::EVENT_RBUTTONUP:
 					_inventory->mouseRUp(_lastMouse);
 					break;
+				case Common::EVENT_MOUSEMOVE:
 				default:
+					_inventory->mouseUpdate(_lastMouse);
 					break;
 				}
 			} else {
 				switch (_lastMouseEvent) {
-				case Common::EVENT_MOUSEMOVE:
-					_scene->mouseMoved(_lastMouse);
-					break;
 				case Common::EVENT_LBUTTONDOWN:
 					_scene->mouseLDown(_lastMouse);
 					break;
@@ -750,7 +737,9 @@ Common::Error DgdsEngine::run() {
 				case Common::EVENT_RBUTTONUP:
 					_scene->mouseRUp(_lastMouse);
 					break;
+				case Common::EVENT_MOUSEMOVE:
 				default:
+					_scene->mouseUpdate(_lastMouse);
 					break;
 				}
 			}
@@ -932,6 +921,13 @@ Common::Error DgdsEngine::syncGame(Common::Serializer &s) {
 		setMouseCursor(kDgdsMouseGameDefault);
 		_soundPlayer->stopAllSfx();
 		_soundPlayer->stopMusic();
+		//
+		// Willy Beamish has a single music file that we load on game init and keep
+		// loaded. Others will load whatever music is needed in the scene init so
+		// we should unload here.
+		//
+		if (getGameId() != GID_WILLY)
+			_soundPlayer->unloadMusic();
 		_scene->unload();
 		_scene->setDragItem(nullptr);
 		_adsInterp->unload();

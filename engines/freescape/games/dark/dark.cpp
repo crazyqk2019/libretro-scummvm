@@ -666,7 +666,7 @@ void DarkEngine::pressedKey(const int keycode) {
 		} else if (_flyMode) {
 			float hzFreq = 1193180.0f / 0xd537;
 			_speaker->play(Audio::PCSpeaker::kWaveFormSquare, hzFreq, -1);
-			_mixer->playStream(Audio::Mixer::kSFXSoundType, &_soundFxHandle, _speaker, -1, Audio::Mixer::kMaxChannelVolume / 2, 0, DisposeAfterUse::NO);
+			_mixer->playStream(Audio::Mixer::kSFXSoundType, &_soundFxHandleJetpack, _speaker, -1, Audio::Mixer::kMaxChannelVolume / 2, 0, DisposeAfterUse::NO);
 			insertTemporaryMessage(_messagesList[11], _countdown - 2);
 		} else {
 			_speaker->stop();
@@ -691,6 +691,7 @@ void DarkEngine::updateTimeVariables() {
 				_gameStateVars[k8bitVariableEnergy]--;
 
 		if (_flyMode && _gameStateVars[k8bitVariableEnergy] == 0) {
+			_mixer->stopHandle(_soundFxHandleJetpack);
 			_flyMode = false;
 			insertTemporaryMessage(_messagesList[13], _countdown - 2);
 		}

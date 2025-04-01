@@ -7,6 +7,7 @@ For a more comprehensive changelog of the latest experimental code, see:
    - Added support for Dark Seed.
    - Added support for God of Thunder.
    - Added support for The Adventures of Willy Beamish.
+   - Added support for Heart of China.
 
  Hopkins:
    - Fix crash using elevator to go to other floors.
@@ -22,6 +23,9 @@ For a more comprehensive changelog of the latest experimental code, see:
    - Improved graphics support for Macintosh DOTT, Sam & Max, The Dig, Full
      Throttle, and Maniac Mansion.
    - Fixed pops in Sega CD MI1 sound effects.
+   - Added an option to render Sega CD MI1 with the "Shadow Mode" palette
+     which was originally used for that release. (It's unclear whether that
+     much darker rendering was used on purpose, or unintentionally.)
 
  TwinE:
    - Fixed meca penguin movement.
@@ -329,7 +333,7 @@ For a more comprehensive changelog of the latest experimental code, see:
 
  iOS/iPadOS port:
    - Add Apple Pencil support.
-   - Add app icons for “Dark” and “Tinted” modes.
+   - Add app icons for "Dark" and "Tinted" modes.
    - Various stability fixes.
 
 

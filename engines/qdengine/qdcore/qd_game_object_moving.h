@@ -49,7 +49,8 @@ public:
 		MOVEMENT_MODE_TURN,
 		MOVEMENT_MODE_START,
 		MOVEMENT_MODE_MOVE,
-		MOVEMENT_MODE_END
+		MOVEMENT_MODE_END,
+		MOVEMENT_MODE_NONE_EARLY
 	};
 
 	//! режимы управления персонажем
@@ -240,6 +241,7 @@ public:
 	void quant(float dt);
 
 	void redraw(int offs_x = 0, int offs_y = 0) const;
+	void drawDebugPath() const;
 	void debug_redraw() const;
 	void draw_contour(uint32 color) const;
 	void draw_shadow(int offs_x, int offs_y, uint32 color, int alpha) const;

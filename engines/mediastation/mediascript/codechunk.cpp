@@ -19,23 +19,23 @@
  *
  */
 
+#include "common/ptr.h"
+
 #include "mediastation/mediastation.h"
 #include "mediastation/mediascript/codechunk.h"
 #include "mediastation/datum.h"
 #include "mediastation/debugchannels.h"
 
-#include "mediastation/assets/movie.h"
-#include "mediastation/assets/path.h"
-
 namespace MediaStation {
 
-CodeChunk::CodeChunk(Common::SeekableReadStream &chunk) : _args(nullptr) {
+CodeChunk::CodeChunk(Common::SeekableReadStream &chunk) {
 	uint lengthInBytes = Datum(chunk, kDatumTypeUint32_1).u.i;
 	debugC(5, kDebugLoading, "CodeChunk::CodeChunk(): Length 0x%x (@0x%llx)", lengthInBytes, static_cast<long long int>(chunk.pos()));
 	_bytecode = chunk.readStream(lengthInBytes);
 }
 
-Operand CodeChunk::execute(Common::Array<Operand> *args) {
+Operand CodeChunk::execute(Common::Array<Operand> *args, Common::Array<Operand> *locals) {
+	_locals = locals;
 	_args = args;
 	Operand returnValue;
 	while (_bytecode->pos() < _bytecode->size()) {
@@ -51,6 +51,12 @@ Operand CodeChunk::execute(Common::Array<Operand> *args) {
 	// We don't own the args, so we will prevent a potentially out-of-scope
 	// variable from being re-accessed.
 	_args = nullptr;
+
+	if (_weOwnLocals) {
+		delete _locals;
+	}
+	_locals = nullptr;
+
 	return returnValue;
 }
 
@@ -81,29 +87,11 @@ Operand CodeChunk::executeNextStatement() {
 			return Operand();
 		}
 
-		case kOpcodeCallRoutine: {
+		case kOpcodeCallFunction: {
 			uint functionId = Datum(*_bytecode).u.i;
 			uint32 parameterCount = Datum(*_bytecode).u.i;
-			Common::Array<Operand> args;
 			debugC(5, kDebugScript, "%d (%d params)", functionId, parameterCount);
-			for (uint i = 0; i < parameterCount; i++) {
-				debugCN(5, kDebugScript, "  Param %d: ", i);
-				Operand arg = executeNextStatement();
-				args.push_back(arg);
-			}
-
-			Operand returnValue;
-			Function *function = g_engine->getFunctionById(functionId);
-			if (function != nullptr) {
-				// This is a title-defined function.
-				returnValue = function->execute(args);
-			} else {
-				// This is a function built in (and global to) the engine.
-				BuiltInFunction builtInFunctionId = static_cast<BuiltInFunction>(functionId);
-				debugC(5, kDebugScript, "  Function Name: %s ", builtInFunctionToStr(builtInFunctionId));
-				returnValue = g_engine->callBuiltInFunction(builtInFunctionId, args);
-			}
-			return returnValue;
+			return callFunction(functionId, parameterCount);
 		}
 
 		case kOpcodeCallMethod: {
@@ -129,7 +117,9 @@ Operand CodeChunk::executeNextStatement() {
 		case kOpcodeDeclareVariables: {
 			uint32 localVariableCount = Datum(*_bytecode).u.i;
 			debugC(5, kDebugScript, "%d", localVariableCount);
-			_locals.resize(localVariableCount);
+			assert(_locals == nullptr);
+			_locals = new Common::Array<Operand>(localVariableCount);
+			_weOwnLocals = true;
 			return Operand();
 		}
 
@@ -176,11 +166,9 @@ Operand CodeChunk::executeNextStatement() {
 			// Doesn't seem like there is a real bool type for values,
 			// ao just get an integer.
 			if (condition.getInteger()) {
-				// TODO: If locals are modified in here, they won't be
-				// propagated up since it's its own code chunk.
-				ifBlock.execute(_args);
+				ifBlock.execute(_args, _locals);
 			} else {
-				elseBlock.execute(_args);
+				elseBlock.execute(_args, _locals);
 			}
 
 			// If blocks themselves shouldn't return anything.
@@ -329,6 +317,15 @@ Operand CodeChunk::executeNextStatement() {
 			return value;
 		}
 
+		case kOpcodeCallFunctionInVariable: {
+			uint parameterCount = Datum(*_bytecode).u.i;
+			Operand variable = executeNextStatement();
+			uint functionId = variable.getFunctionId();
+			debugC(5, kDebugScript, "Variable %d [function %d] (%d params)", variable.getVariable()->_id, functionId, parameterCount);
+
+			return callFunction(functionId, parameterCount);
+		}
+
 		default:
 			error("CodeChunk::getNextStatement(): Got unimplemented opcode %s (%d)", opcodeToStr(opcode), static_cast<uint>(opcode));
 		}
@@ -364,15 +361,22 @@ Operand CodeChunk::executeNextStatement() {
 			return operand;
 		}
 
+		case kOperandTypeMethod: {
+			BuiltInMethod methodId = static_cast<BuiltInMethod>(Datum(*_bytecode).u.i);
+			debugC(5, kDebugScript, "%s ", builtInMethodToStr(methodId));
+			operand.putMethodId(methodId);
+			return operand;
+		}
+
 		case kOperandTypeFunction: {
 			uint functionId = Datum(*_bytecode).u.i;
 			debugC(5, kDebugScript, "%d ", functionId);
-			operand.putFunction(functionId);
+			operand.putFunctionId(functionId);
 			return operand;
 		}
 
 		case kOperandTypeString: {
-			// This is indeed a raw string anot not a string wrapped in a datum!
+			// This is indeed a raw string, not a string wrapped in a datum!
 			// TODO: This copies the string. Can we read it directly from the chunk?
 			int size = Datum(*_bytecode, kDatumTypeUint16_1).u.i;
 			char *buffer = new char[size + 1];
@@ -404,6 +408,29 @@ Operand CodeChunk::executeNextStatement() {
 	}
 }
 
+Operand CodeChunk::callFunction(uint functionId, uint parameterCount) {
+	Common::Array<Operand> args;
+	for (uint i = 0; i < parameterCount; i++) {
+		debugCN(5, kDebugScript, "  Param %d: ", i);
+		Operand arg = executeNextStatement();
+		args.push_back(arg);
+	}
+
+	Operand returnValue;
+	Function *function = g_engine->getFunctionById(functionId);
+	if (function != nullptr) {
+		// This is a title-defined function.
+		returnValue = function->execute(args);
+	} else {
+		// This is a function built in (and global to) the engine.
+		BuiltInFunction builtInFunctionId = static_cast<BuiltInFunction>(functionId);
+		debugC(5, kDebugScript, "  Function Name: %s ", builtInFunctionToStr(builtInFunctionId));
+		returnValue = g_engine->callBuiltInFunction(builtInFunctionId, args);
+	}
+
+	return returnValue;
+}
+
 Operand CodeChunk::getVariable(uint32 id, VariableScope scope) {
 	switch (scope) {
 	case kVariableScopeGlobal: {
@@ -415,7 +442,7 @@ Operand CodeChunk::getVariable(uint32 id, VariableScope scope) {
 
 	case kVariableScopeLocal: {
 		uint index = id - 1;
-		return _locals.operator[](index);
+		return _locals->operator[](index);
 	}
 
 	case kVariableScopeParameter: {
@@ -431,7 +458,7 @@ Operand CodeChunk::getVariable(uint32 id, VariableScope scope) {
 	}
 }
 
-void CodeChunk::putVariable(uint32 id, VariableScope scope, Operand value) {
+void CodeChunk::putVariable(uint32 id, VariableScope scope, Operand &value) {
 	switch (scope) {
 	case kVariableScopeGlobal: {
 		Variable *variable = g_engine->_variables.getVal(id);
@@ -444,7 +471,7 @@ void CodeChunk::putVariable(uint32 id, VariableScope scope, Operand value) {
 
 	case kVariableScopeLocal: {
 		uint index = id - 1;
-		_locals[index] = value;
+		_locals->operator[](index) = value;
 		break;
 	}
 
@@ -458,7 +485,7 @@ void CodeChunk::putVariable(uint32 id, VariableScope scope, Operand value) {
 	}
 }
 
-Operand CodeChunk::callBuiltInMethod(BuiltInMethod method, Operand self, Common::Array<Operand> &args) {
+Operand CodeChunk::callBuiltInMethod(BuiltInMethod method, Operand &self, Common::Array<Operand> &args) {
 	Operand literalSelf = self.getLiteralValue();
 	OperandType literalType = literalSelf.getType();
 	switch (literalType) {
@@ -488,7 +515,7 @@ Operand CodeChunk::callBuiltInMethod(BuiltInMethod method, Operand self, Common:
 	}
 
 	case kOperandTypeCollection: {
-		Collection *collection = literalSelf.getCollection();
+		Common::SharedPtr<Collection> collection = literalSelf.getCollection();
 		Operand returnValue = collection->callMethod(method, args);
 		return returnValue;
 	}
@@ -502,6 +529,11 @@ Operand CodeChunk::callBuiltInMethod(BuiltInMethod method, Operand self, Common:
 CodeChunk::~CodeChunk() {
 	// We don't own the args, so we don't need to delete it.
 	_args = nullptr;
+
+	if (_weOwnLocals) {
+		delete _locals;
+	}
+	_locals = nullptr;
 
 	delete _bytecode;
 	_bytecode = nullptr;

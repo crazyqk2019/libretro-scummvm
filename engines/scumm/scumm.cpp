@@ -2376,7 +2376,7 @@ void ScummEngine::setupMusic(int midi) {
 		_musicEngine = new Player_AD(this, _mixer->mutex());
 	} else if (_game.platform == Common::kPlatformDOS && _sound->_musicType == MDT_ADLIB && _game.heversion >= 60) {
 		_musicEngine = new Player_HE(this);
-	} else if (_game.version >= 3 && _game.heversion <= 62) {
+	} else if (_game.platform != Common::kPlatformSegaCD && _game.version >= 3 && _game.heversion <= 62) {
 		MidiDriver *nativeMidiDriver = nullptr;
 		MidiDriver *adlibMidiDriver = nullptr;
 		bool multi_midi = ConfMan.getBool("multi_midi") && _sound->_musicType != MDT_NONE && _sound->_musicType != MDT_PCSPK && (midi & MDT_ADLIB);
@@ -3625,7 +3625,7 @@ void ScummEngine_v3::scummLoop_handleSaveLoad() {
 			redrawVerbs();
 		}
 
-		if (restoreSounds)
+		if (_musicEngine && restoreSounds)
 			_musicEngine->restoreAfterLoad();
 	}
 }
@@ -3690,7 +3690,8 @@ void ScummEngine_v5::scummLoop_handleSaveLoad() {
 		clearCharsetMask();
 		_charset->_hasMask = false;
 
-		_musicEngine->restoreAfterLoad();
+		if (_musicEngine)
+			_musicEngine->restoreAfterLoad();
 
 		redrawVerbs();
 
