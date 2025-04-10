@@ -37,7 +37,7 @@ CP       := cp
 
 
 LDFLAGS :=
-
+LIBS :=
 
 # Raspberry Pi 1
 ifeq ($(platform), rpi1)
@@ -525,7 +525,7 @@ else ifeq ($(platform), win)
    TARGET  := $(TARGET_NAME)_libretro.dll
    DEFINES += -DHAVE_FSEEKO -DHAVE_INTTYPES_H -fPIC
    CXXFLAGS += -fno-permissive
-   LDFLAGS += -shared -static-libgcc -static-libstdc++ -s -Wl,--version-script=$(ROOT_PATH)/link.T -fPIC
+   LDFLAGS += -shared -s -Wl,--version-script=$(ROOT_PATH)/link.T -fPIC
 ifneq ($(TARGET_64BIT),1)
    DEFINES += -DRETRO_CALLCONV=__cdecl
 endif
@@ -659,7 +659,7 @@ endif
 
 libdeps.a: $(OBJS_DEPS)
 	@echo Linking $@...
-	$(HIDE)$(AR) $@ $^
+	@find $^ -print0 | xargs -0 $(AR) $@
 
 libdetect.a: $(DETECT_OBJS)
 	@echo Linking $@...
